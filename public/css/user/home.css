@@ -1,0 +1,169 @@
+.subject-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.subject-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 25px;
+    border: 1px solid #e0e0e0;
+    border-left: 5px solid var(--feu-green);
+    transition: 0.3s;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    border-left-color: var(--feu-gold);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.subject-info {
+    flex: 1;
+}
+
+.action-area {
+    margin-left: 30px;
+    min-width: 180px;
+}
+
+.btn-start-eval {
+    background: var(--feu-green);
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-block;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.btn-start-eval:hover {
+    background: var(--feu-dark);
+    transform: translateX(5px);
+}
+
+/* --- Dashboard Containers --- */
+.section-title {
+    color: var(--feu-green);
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+/* --- Privacy Card (Overlay Style) --- */
+.notice-wrapper {
+    padding: 40px 0;
+}
+/* Prevent the dashboard from flickering before JS runs */
+#main-content {
+    display: none;
+}
+
+.privacy-card {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 40px;
+    text-align: center;
+    border-top: 8px solid var(--feu-green);
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 12px;
+}
+.privacy-icon {
+    font-size: 3.5rem;
+    color: var(--feu-green);
+    margin-bottom: 20px;
+}
+.btn-feu {
+    background: var(--feu-green);
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-feu:hover {
+    background: var(--feu-dark);
+    transform: translateY(-2px);
+}
+
+/* --- Evaluation Card (Flexbox Fix) --- */
+.evaluation-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border: 1px solid #e0e0e0;
+    padding: 22px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.2s;
+}
+.evaluation-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-details {
+    flex: 1;
+}
+.faculty-name {
+    margin: 0;
+    color: #333;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.subject-tag {
+    display: inline-block;
+    background: #f4f4f4;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-top: 8px;
+    margin-right: 10px;
+    color: #555;
+}
+
+.card-actions {
+    margin-left: 20px;
+    flex-shrink: 0;
+}
+.btn-start-eval {
+    display: inline-block;
+    background: var(--feu-green);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+.btn-start-eval:hover {
+    background: var(--feu-dark);
+}
+
+/* --- Closed State --- */
+.closed-card {
+    text-align: center;
+    padding: 60px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px dashed #ccc;
+}
+.closed-icon {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+#privacy-notice[style*="display: none"] {
+    display: none !important;
+}

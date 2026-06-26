@@ -1,0 +1,178 @@
+:root {
+    --feu-green: #274c07;
+    --feu-green-dark: #1b3505;
+    --feu-gold: #f3ab21;
+    --feu-gold-light: #ffc24d;
+    --bg-soft: #f4f7f6;
+    --text-main: #2d3748;
+    --text-muted: #718096;
+    --white: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", 'Roboto', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-soft);
+    
+    /* Fixed Background Logic */
+    background-image: url('/images/bg.png'); 
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+
+/* Navbar: More depth with a subtle shadow */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    height: 65px;
+    background: var(--feu-green);
+    border-bottom: 4px solid var(--feu-gold);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+}
+
+.logo-badge {
+    background: var(--feu-gold);
+    padding: 5px 12px;
+    border-radius: 4px;
+    color: var(--feu-green);
+    font-weight: 800;
+}
+
+.logo-text {
+    font-weight: 700;
+    margin-left: 10px;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+.wrapper {
+    display: flex;
+    height: calc(100vh - 65px);
+}
+
+/* Container: Better vertical centering */
+.container {
+    max-width: 450px;
+    margin: 80px auto;
+    padding: 0 20px;
+}
+
+/* Card: Smoother shadows and border-top accent */
+.card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.05),
+        0 2px 5px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 6px solid var(--feu-green); /* Visual anchor to FEU colors */
+}
+
+.card h2 {
+    color: var(--feu-green);
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+/* Form Control: Focus state is much clearer now */
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--feu-green);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(39, 76, 7, 0.1);
+}
+
+/* Button: Added active state and transition */
+.btn-primary {
+    background: var(--feu-green);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    width: 100%;
+    font-size: 1rem;
+    transition:
+        all 0.2s transform,
+        all 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 6px rgba(39, 76, 7, 0.2);
+}
+
+.btn-primary:hover {
+    background: var(--feu-green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(39, 76, 7, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Alerts: More modern look */
+.alert-danger {
+    background: #fff5f5;
+    color: #c53030;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border-left: 4px solid #f56565;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Animation */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.active {
+    display: block;
+    animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}

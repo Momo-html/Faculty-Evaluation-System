@@ -1,0 +1,713 @@
+/* ==========================================================================
+   GLOBAL STYLES & RESET
+   ========================================================================== */
+:root {
+    --feu-green: #274c07;
+    --feu-gold: #f3ab21;
+    --feu-dark: #1e3a05;
+    --bg-light: #f0f2f5;
+    --white: #ffffff;
+    --text-main: #333;
+    --text-muted: #999;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, 'Geneva', Verdana, sans-serif;
+    background: var(--bg-light);
+    color: var(--text-main);
+}
+
+/* ==========================================================================
+   NAVIGATION & LAYOUT
+   ========================================================================== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    height: 65px;
+    background: var(--feu-green);
+    border-bottom: 4px solid var(--feu-gold);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+}
+
+.logo-badge {
+    background: var(--feu-gold);
+    padding: 5px 12px;
+    border-radius: 4px;
+    color: var(--feu-green);
+    font-weight: 800;
+}
+
+.logo-text {
+    font-weight: 700;
+    margin-left: 10px;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+.wrapper {
+    display: flex;
+    height: calc(100vh - 65px);
+}
+
+.profile-dropdown {
+    display: none; 
+    cursor: pointer;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--white);
+    min-width: 180px;
+    border: 1px solid #ddd;
+    border-top: 3px solid var(--feu-gold);
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    margin-top: 12px;
+}
+
+.profile-dropdown.show {
+    display: block !important;
+}
+
+.profile-dropdown a,
+.profile-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.profile-dropdown a:hover,
+.profile-dropdown button:hover {
+    background: #f5f5f5;
+    color: var(--feu-green);
+}
+
+.profile-dropdown hr {
+    margin: 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+    width: 280px;
+    background: var(--white);
+    border-right: 1px solid #ddd;
+    padding: 20px 0;
+    overflow-y: auto;
+}
+
+.sidebar-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 10px 25px;
+    text-transform: uppercase;
+    margin-top: 15px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 14px 25px;
+    cursor: pointer;
+    color: #555;
+    text-decoration: none;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+.menu-item span {
+    margin-right: 12px;
+    font-size: 18px;
+    display: inline-flex;
+    justify-content: center;
+    width: 24px;
+}
+
+.menu-item:hover {
+    background: #f8f9fa;
+    color: var(--feu-green);
+}
+
+.menu-item.active {
+    background: #e9f0e6;
+    color: var(--feu-green);
+    border-left: 5px solid var(--feu-green);
+    font-weight: 700;
+    padding-left: 20px;
+}
+
+.main-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+/* ==========================================================================
+   UI COMPONENTS (Cards & Stats)
+   ========================================================================== */
+.card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    border-top: 4px solid var(--feu-green);
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge.pos {
+    background: #e9f0e6;
+    color: var(--feu-green);
+}
+
+/* ==========================================================================
+   FORM ELEMENTS & QUICK ADD CONTAINER
+   ========================================================================== */
+#quickAddContainer {
+    border-top: 5px solid var(--feu-gold);
+    animation: slideDown 0.3s ease-out;
+}
+
+.quick-add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.2s;
+    background-color: #fff;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--feu-green);
+    box-shadow: 0 0 0 2px rgba(39, 76, 7, 0.1);
+}
+
+.form-row {
+    display: grid;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.form-row.two-cols {
+    grid-template-columns: 1fr 2fr;
+}
+.form-row.three-cols {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+.form-row.action-row {
+    grid-template-columns: 2fr 1fr;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+.btn-primary {
+    background: var(--feu-green);
+    color: white;
+    border: none;
+    padding: 0 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    height: 45px;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-primary:hover {
+    background: var(--feu-dark);
+    transform: translateY(-1px);
+}
+
+.close-btn {
+    background: #eee;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #666;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.close-btn:hover {
+    background: #c62828;
+    color: white;
+}
+
+/* ==========================================================================
+   TABLES
+   ========================================================================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 15px 12px;
+    border-bottom: 2px solid #eee;
+    color: var(--feu-green);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+td {
+    padding: 15px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+
+tr:hover td {
+    background: #fafafa;
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .form-row.two-cols,
+    .form-row.three-cols,
+    .form-row.action-row {
+        grid-template-columns: 1fr;
+    }
+    .sidebar {
+        display: none;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.form-row.four-cols {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.dropdown-wrapper {
+    position: relative;
+}
+
+.floating-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: none
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.dropdown-item:hover {
+    background: #f0f7ed;
+    color: var(--feu-green);
+}
+
+.dept-tag {
+    font-weight: 800;
+    color: var(--feu-gold);
+    margin-right: 5px;
+}
+
+.mapping-table td {
+    vertical-align: middle;
+}
+
+@media (max-width: 1024px) {
+    .form-row.four-cols {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+.input-group.horizontal {
+    flex-direction: row; 
+    align-items: center;
+    gap: 10px;
+}
+
+.input-group.horizontal label {
+    margin-bottom: 0; 
+    white-space: nowrap; 
+    min-width: 80px;
+}
+
+.active-popup {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 1100px;
+    z-index: 2000;
+    box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 15px 15px 0 0 !important;
+    border-top: 5px solid var(--feu-gold) !important;
+    animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUp {
+    from {
+        bottom: -100%;
+    }
+    to {
+        bottom: 0;
+    }
+}
+
+.btn-secondary {
+    background: #fff;
+    color: var(--feu-green);
+    border: 1px solid var(--feu-green);
+    padding: 0 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #e9f0e6;
+}
+
+.builder-card {
+    border-left: 5px solid var(--feu-green);
+    background: #fff;
+}
+
+.builder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.form-grid-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    background: #fcfcfc;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.inline-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1; 
+    min-width: 200px; 
+}
+
+.inline-group label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--feu-green);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.section-divider {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.section-divider h4 {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.btn-cancel {
+    background: #fff;
+    color: #3a3737;
+    border: 1px solid #807173;
+    padding: 6px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-add-row {
+    background: var(--feu-gold);
+    color: var(--feu-green);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-primary-save {
+    width: 100%;
+    background: var(--feu-green);
+    color: white;
+    border: none;
+    height: 50px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: 0.2s;
+}
+
+.btn-primary-save:hover {
+    background: var(--feu-dark);
+}
+
+.form-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; 
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.input-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+}
+
+.input-group label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--feu-green);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .form-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   USER TABLE SPECIFIC STYLES
+   ========================================================================== */
+#userTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 10px;
+}
+
+#userTable thead th {
+    background: #f8fafc;
+    color: var(--feu-green);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 18px 15px;
+    border-bottom: 2px solid var(--feu-gold); /* Using FEU Gold for the header line */
+}
+
+#userTable tbody td {
+    padding: 16px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+#userTable tr:last-child td {
+    border-bottom: none;
+}
+
+#userTable tr:hover td {
+    background: #fcfdfb; /* Very light green tint on hover */
+}
+
+/* Search/Filter alignment for userTable */
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#userTable_filter input {
+    width: 250px;
+    margin-left: 10px;
+    padding: 8px 12px;
+}
+
+/* ==========================================================================
+   MINIMALIST BUTTONS
+   ========================================================================== */
+
+/* Base Button Reset */
+.btn-primary, .btn-danger, .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;           /* Reduced height */
+    padding: 0 16px;        /* Tighter horizontal padding */
+    border-radius: 4px;     /* Subtle rounding */
+    font-size: 13px;
+    font-weight: 500;       /* Not too bold */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    letter-spacing: 0.2px;
+}
+
+/* Primary - Soft Green Border */
+.btn-primary {
+    background: #f4f8f2;   /* Very faint green tint */
+    color: #2e4a16;        /* Deep muted green */
+    border-color: #d8e6cf;
+}
+
+.btn-primary:hover {
+    background: #e9f1e4;
+    border-color: #2e4a16;
+}
+
+/* Danger - Soft Muted Red */
+.btn-danger {
+    background: #fdf5f5;   /* Very faint red tint */
+    color: #a34141;        /* Muted brick red */
+    border-color: #f2dada;
+}
+
+.btn-danger:hover {
+    background: #f9e8e8;
+    border-color: #a34141;
+}
+
+/* Secondary - Grey/Neutral */
+.btn-secondary {
+    background: #ffffff;
+    color: #666666;
+    border-color: #e0e0e0;
+}
+
+.btn-secondary:hover {
+    background: #f9f9f9;
+    border-color: #999999;
+    color: #333333;
+}
+
+/* Small Variant for Tables */
+.btn-small {
+    height: 26px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+}
