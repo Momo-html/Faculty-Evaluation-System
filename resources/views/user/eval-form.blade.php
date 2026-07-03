@@ -13,6 +13,11 @@
 
             <!-- Focus on the specific subject being evaluated -->
             <div style="margin-top: 15px;">
+                @if($form)
+                    <p style="margin: 0 0 8px; color: var(--feu-green); font-weight: 700;">
+                        {{ $form->title }} | {{ $form->school_year }} | {{ $form->semester }}
+                    </p>
+                @endif
                 <h2 style="margin: 0; color: #202124; font-size: 22px;">{{ $evaluation->subject_code }}:
                     {{ $evaluation->subject_name }}</h2>
                 <p style="font-size: 16px; color: #5f6368; margin: 5px 0;">
@@ -24,33 +29,53 @@
             <p class="required-notice"><span class="required">*</span> Indicates required question</p>
         </div>
 
+        @if($questions->isEmpty())
+            <div class="form-card question-section">
+                <div class="question-text">No active evaluation questions are available right now.</div>
+                <p>Please return to your dashboard and try again later.</p>
+            </div>
+        @else
         <form action="{{ route('eval.submit') }}" method="POST">
             @csrf
+            <input type="hidden" name="form_id" value="{{ $evaluation->form_id }}">
             <input type="hidden" name="mapping_id" value="{{ $evaluation->mapping_id }}">
 
             @foreach($questions as $q)
                 <div class="form-card question-section">
                     <div class="question-text">
-                        {{ $q->question_text }} <span class="required">*</span>
+                        {{ $q->question_text }} @if($q->is_required)<span class="required">*</span>@endif
                     </div>
 
-                    @if(strtolower($q->type) == 'scale')
+                    @if(in_array(strtolower($q->question_type ?? $q->type ?? ''), ['scale', 'rating'], true))
+                        @php
+                            $scaleMin = (int) data_get($q->options, 'scale_min', 1);
+                            $scaleMax = (int) data_get($q->options, 'scale_max', 5);
+                        @endphp
                         <div class="rating-scale">
                             <span class="scale-label">Poor</span>
                             <div class="options">
-                                @for($i = 1; $i <= 5; $i++)
+                                @for($i = $scaleMin; $i <= $scaleMax; $i++)
                                     <label class="radio-option">
                                         <span>{{ $i }}</span>
-                                        <input type="radio" name="rating[{{ $q->id }}]" value="{{ $i }}" required>
+                                        <input type="radio" name="rating[{{ $q->id }}]" value="{{ $i }}" @required($q->is_required)>
                                     </label>
                                 @endfor
                             </div>
                             <span class="scale-label">Excellent</span>
                         </div>
-                    @elseif(strtolower($q->type) == 'text')
+                    @elseif(strtolower($q->question_type ?? $q->type ?? '') === 'multiple_choice')
+                        <div class="text-answer">
+                            <select name="choice[{{ $q->id }}]" class="google-input" @required($q->is_required)>
+                                <option value="">Choose an answer</option>
+                                @foreach(($q->options ?? []) as $option)
+                                    <option value="{{ $option }}">{{ $option }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @else
                         <div class="text-answer">
                             <textarea name="comments[{{ $q->id }}]" class="google-input" placeholder="Your answer" rows="1"
-                                oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
+                                oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"' @required($q->is_required)></textarea>
                         </div>
                     @endif
                 </div>
@@ -66,6 +91,7 @@
                 </button>
             </div>
         </form>
+        @endif
     </div>
 @endsection
 @push('scripts')

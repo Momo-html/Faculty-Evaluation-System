@@ -1,99 +1,211 @@
 @extends('layouts.admin')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/admin/forms.css') }}">
+@endpush
+
 @section('content')
-    <div id="forms" class="page-content">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="margin:0; color: var(--feu-green);">Evaluation Management</h2>
-            <button class="btn-primary" onclick="showCreateForm()">+ Create New Evaluation Period</button>
-        </div>
+    <div id="forms" class="builder-page">
+        <section class="builder-hero">
+            <div>
+                <p class="builder-eyebrow">Evaluation Engine</p>
+                <h1>Evaluation Form Builder</h1>
+                <p class="builder-subtitle">Create active evaluation forms, manage dynamic questions, and control what students can answer.</p>
+            </div>
+            <button class="builder-btn builder-btn-primary" type="button" onclick="showCreateForm()">Create New Form</button>
+        </section>
 
-        <div class="card" id="tableSection">
-            <table style="width:100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="text-align: left; border-bottom: 2px solid #eee;">
-                        <th style="padding: 12px;">School Year</th>
-                        <th style="padding: 12px;">Semester</th>
-                        <th style="padding: 12px;">Schedule</th>
-                        <th style="padding: 12px;">Status</th>
-                        <th style="text-align:right; padding: 12px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($allForms as $f)
-                        <tr style="border-bottom: 1px solid #f9f9f9;">
-                            <td style="padding: 12px;"><b>{{ $f->school_year }}</b></td>
-                            <td style="padding: 12px;">{{ $f->semester }}</td>
-                            <td style="padding: 12px;">
-                                <small style="color: #666;">
-                                    <b>Open:</b> {{ date('M d, Y h:i A', strtotime($f->open_at)) }}<br>
-                                    <b>Close:</b> {{ date('M d, Y h:i A', strtotime($f->close_at)) }}
-                                </small>
-                            </td>
-                            <td style="padding: 12px;">
-                                <span class="badge {{ $f->is_active ? 'pos' : 'neu' }}">
-                                    {{ $f->is_active ? 'Active' : 'Closed' }}
-                                </span>
-                            </td>
-                            <td style="text-align:right; padding: 12px;">
-                                <button class="btn-small" onclick="loadFormForEdit({{ $f->id }})"
-                                    style="padding: 5px 12px;">Edit</button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        @if(session('success'))
+            <div class="builder-alert builder-alert-success">{{ session('success') }}</div>
+        @endif
 
-        <!-- Builder Section -->
-        <div id="builderSection" style="display:none; margin-top: 20px;" class="card">
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
-                <h3 id="builderTitle" style="margin:0; color: var(--feu-green);">Edit Evaluation Form</h3>
+        @if($errors->any())
+            <div class="builder-alert builder-alert-danger">{{ $errors->first() }}</div>
+        @endif
+
+        <section class="builder-stats">
+            <article class="builder-stat">
+                <span>Total Forms</span>
+                <strong>{{ $builderStats['total'] ?? 0 }}</strong>
+            </article>
+            <article class="builder-stat">
+                <span>Active Forms</span>
+                <strong>{{ $builderStats['active'] ?? 0 }}</strong>
+            </article>
+            <article class="builder-stat">
+                <span>Draft / Closed</span>
+                <strong>{{ $builderStats['closed'] ?? 0 }}</strong>
+            </article>
+            <article class="builder-stat">
+                <span>Total Questions</span>
+                <strong>{{ $builderStats['questions'] ?? 0 }}</strong>
+            </article>
+        </section>
+
+        <section class="builder-panel" id="tableSection">
+            <div class="builder-panel-header">
                 <div>
-                <button id="deleteBtn" class="btn-danger" onclick="deleteForm()" style="padding: 5px 15px; display:none;">Delete</button>
-                <button class="btn-secondary" onclick="closeBuilder()" style="padding: 5px 15px;">Cancel</button>
+                    <h2>Evaluation Forms</h2>
+                    <p>Review schedules, status, question count, and response activity.</p>
+                </div>
+            </div>
+
+            <div class="builder-table-wrap">
+                <table class="builder-table">
+                    <thead>
+                        <tr>
+                            <th>Form</th>
+                            <th>School Year</th>
+                            <th>Semester</th>
+                            <th>Schedule</th>
+                            <th>Status</th>
+                            <th>Questions</th>
+                            <th>Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($allForms as $f)
+                            @php
+                                $status = $f->trashed()
+                                    ? 'Archived'
+                                    : ($f->is_active
+                                        ? (optional($f->open_at)->isFuture() ? 'Scheduled' : (optional($f->close_at)->isPast() ? 'Closed' : 'Active'))
+                                        : 'Draft');
+                                $statusClass = strtolower($status);
+                            @endphp
+                            <tr>
+                                <td>
+                                    <strong>{{ $f->title }}</strong>
+                                    <span>{{ $f->description ?: 'No description provided' }}</span>
+                                </td>
+                                <td>{{ $f->school_year }}</td>
+                                <td>{{ $f->semester }}</td>
+                                <td>
+                                    <span>Open: {{ $f->open_at ? $f->open_at->format('M d, Y h:i A') : 'Not set' }}</span>
+                                    <span>Close: {{ $f->close_at ? $f->close_at->format('M d, Y h:i A') : 'Not set' }}</span>
+                                </td>
+                                <td><span class="builder-badge {{ $statusClass }}">{{ $status }}</span></td>
+                                <td>{{ $f->questions_count }} questions<br><span>{{ $f->responses_count }} responses</span></td>
+                                <td>{{ $f->updated_at?->format('M d, Y') }}</td>
+                                <td>
+                                    <div class="builder-actions">
+                                        <button class="builder-btn builder-btn-small" type="button" onclick="loadFormForEdit({{ $f->id }})">Edit Builder</button>
+                                        <button class="builder-btn builder-btn-small {{ $f->is_active ? 'builder-btn-warning' : 'builder-btn-secondary' }}" type="button" onclick="toggleFormStatus({{ $f->id }})">
+                                            {{ $f->is_active ? 'Deactivate' : 'Activate' }}
+                                        </button>
+                                        <button class="builder-btn builder-btn-small builder-btn-danger" type="button" onclick="deleteForm({{ $f->id }})">Archive</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8">
+                                    <div class="builder-empty">
+                                        <strong>No evaluation forms yet</strong>
+                                        <p>Create your first form, add questions, and activate it for students.</p>
+                                        <button class="builder-btn builder-btn-primary" type="button" onclick="showCreateForm()">Create Form</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="builder-pagination">
+                {{ $allForms->links() }}
+            </div>
+        </section>
+
+        <section id="builderSection" class="builder-workspace" hidden>
+            <div class="builder-workspace-header">
+                <div>
+                    <p class="builder-eyebrow">Builder Workspace</p>
+                    <h2 id="builderTitle">Create Evaluation Form</h2>
+                </div>
+                <div class="builder-toolbar">
+                    <button type="button" class="builder-btn builder-btn-secondary" onclick="previewStudentView()">Preview Student View</button>
+                    <button id="deleteBtn" type="button" class="builder-btn builder-btn-danger" onclick="deleteForm()" hidden>Archive Form</button>
+                    <button type="button" class="builder-btn builder-btn-secondary" onclick="closeBuilder()">Cancel</button>
                 </div>
             </div>
 
             <input type="hidden" id="currentFormId">
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="input-group">
-                    <label style="display:block; font-weight: 600; margin-bottom: 5px;">School Year</label>
-                    <input type="text" id="sy" placeholder="2025-2026"
-                        style="width: 100%; padding: 8px; border: 1px solid #ddd;">
+            <div class="builder-grid">
+                <div class="builder-main">
+                    <article class="builder-card">
+                        <div class="builder-card-heading">
+                            <h3>Form Details</h3>
+                            <p>These dates control when students can see and submit this evaluation.</p>
+                        </div>
+                        <div class="builder-form-grid">
+                            <label>
+                                <span>Form Title</span>
+                                <input type="text" id="title" placeholder="Faculty Evaluation Form">
+                            </label>
+                            <label>
+                                <span>School Year</span>
+                                <input type="text" id="sy" placeholder="2025-2026" required>
+                            </label>
+                            <label>
+                                <span>Semester</span>
+                                <select id="sem" required>
+                                    <option value="1st Semester">1st Semester</option>
+                                    <option value="2nd Semester">2nd Semester</option>
+                                    <option value="Summer">Summer</option>
+                                </select>
+                            </label>
+                            <label>
+                                <span>Open Date and Time</span>
+                                <input type="datetime-local" id="openAt" required>
+                            </label>
+                            <label>
+                                <span>Close Date and Time</span>
+                                <input type="datetime-local" id="closeAt" required>
+                            </label>
+                            <label class="builder-toggle-row">
+                                <input type="checkbox" id="isActive" checked>
+                                <span>Active and visible during schedule</span>
+                            </label>
+                            <label class="builder-full">
+                                <span>Description</span>
+                                <textarea id="description" placeholder="Optional instructions for this evaluation period"></textarea>
+                            </label>
+                        </div>
+                    </article>
+
+                    <article class="builder-card">
+                        <div class="builder-card-heading split">
+                            <div>
+                                <h3>Question Builder</h3>
+                                <p>Add rating, multiple choice, and comment questions in the order students will see them.</p>
+                            </div>
+                            <button type="button" class="builder-btn builder-btn-secondary" onclick="addQuestion()">Add Question</button>
+                        </div>
+                        <div id="formCanvas" class="question-list"></div>
+                    </article>
                 </div>
-                <div class="input-group">
-                    <label style="display:block; font-weight: 600; margin-bottom: 5px;">Semester</label>
-                    <select id="sem" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
-                        <option value="1st Semester">1st Semester</option>
-                        <option value="2nd Semester">2nd Semester</option>
-                        <option value="Summer">Summer</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label style="display:block; font-weight: 600; margin-bottom: 5px;">Open At</label>
-                    <input type="datetime-local" id="openAt" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
-                </div>
-                <div class="input-group">
-                    <label style="display:block; font-weight: 600; margin-bottom: 5px;">Close At</label>
-                    <input type="datetime-local" id="closeAt" style="width: 100%; padding: 8px; border: 1px solid #ddd;">
-                </div>
+
+                <aside class="builder-preview">
+                    <div class="preview-card">
+                        <span class="preview-label">Student Preview</span>
+                        <h3 id="previewTitle">Faculty Evaluation Form</h3>
+                        <p id="previewMeta">School year and semester will appear here.</p>
+                        <div id="previewQuestions" class="preview-questions"></div>
+                    </div>
+                </aside>
             </div>
 
-            <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h4 style="margin:0;">Evaluation Questions</h4>
-                    <button class="btn-secondary" onclick="addQuestion()" style="padding: 8px 15px;">+ Add Question</button>
+            <div class="builder-savebar">
+                <div>
+                    <strong>Ready to save?</strong>
+                    <span>Validation runs on both browser and Laravel backend.</span>
                 </div>
-                <div id="formCanvas"></div>
+                <button type="button" class="builder-btn builder-btn-primary" onclick="saveForm()">Save Form</button>
             </div>
-
-            <div style="margin-top: 20px;">
-                <button class="btn-primary" onclick="saveForm()" style="width: 100%; padding: 12px; font-weight: bold;">Save
-                    Evaluation Period</button>
-            </div>
-        </div>
+        </section>
     </div>
 @endsection
 

@@ -1,133 +1,320 @@
 /**
- * FEU Faculty Evaluation - Form Builder Logic
+ * FEU Faculty Evaluation - Professional Form Builder
  */
 
 function showCreateForm() {
-    document.getElementById('builderTitle').innerText = "Create New Evaluation Period";
-    document.getElementById('currentFormId').value = "";
-    document.getElementById('sy').value = "";
-    document.getElementById('sem').value = "1st Semester";
-    document.getElementById('openAt').value = "";
-    document.getElementById('closeAt').value = "";
-    document.getElementById('formCanvas').innerHTML = "";
-    
-    // Hide delete button for new entries
-    const delBtn = document.getElementById('deleteBtn');
-    if (delBtn) delBtn.style.display = 'none';
-
+    setBuilderVisibility(true);
+    document.getElementById("builderTitle").innerText = "Create Evaluation Form";
+    document.getElementById("currentFormId").value = "";
+    document.getElementById("title").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("sy").value = "";
+    document.getElementById("sem").value = "1st Semester";
+    document.getElementById("openAt").value = "";
+    document.getElementById("closeAt").value = "";
+    document.getElementById("isActive").checked = true;
+    document.getElementById("formCanvas").innerHTML = "";
+    document.getElementById("deleteBtn").hidden = true;
     addQuestion();
-    document.getElementById('tableSection').style.display = 'none';
-    document.getElementById('builderSection').style.display = 'block';
+    refreshQuestionNumbers();
+    updatePreview();
 }
 
 async function loadFormForEdit(id) {
-    // API is your global helper, ensure it handles tokens
     const form = await API.request(`/admin/get-form-data/${id}`, "GET");
     if (!form) return;
 
-    document.getElementById('builderTitle').innerText = `Editing: SY ${form.school_year}`;
-    document.getElementById('currentFormId').value = form.id;
-    document.getElementById('sy').value = form.school_year;
-    document.getElementById('sem').value = form.semester;
-    
-    // Show delete button when editing
-    const delBtn = document.getElementById('deleteBtn');
-    if (delBtn) delBtn.style.display = 'inline-block';
+    setBuilderVisibility(true);
+    document.getElementById("builderTitle").innerText = `Editing: ${form.title || form.school_year}`;
+    document.getElementById("currentFormId").value = form.id;
+    document.getElementById("title").value = form.title || "";
+    document.getElementById("description").value = form.description || "";
+    document.getElementById("sy").value = form.school_year;
+    document.getElementById("sem").value = form.semester;
+    document.getElementById("isActive").checked = Boolean(form.is_active);
+    document.getElementById("deleteBtn").hidden = false;
 
-    if (form.open_at) document.getElementById('openAt').value = form.open_at.replace(' ', 'T').slice(0, 16);
-    if (form.close_at) document.getElementById('closeAt').value = form.close_at.replace(' ', 'T').slice(0, 16);
+    if (form.open_at) document.getElementById("openAt").value = form.open_at.replace(" ", "T").slice(0, 16);
+    if (form.close_at) document.getElementById("closeAt").value = form.close_at.replace(" ", "T").slice(0, 16);
 
-    const canvas = document.getElementById('formCanvas');
-    canvas.innerHTML = '';
-    
+    const canvas = document.getElementById("formCanvas");
+    canvas.innerHTML = "";
+
     if (form.questions && form.questions.length > 0) {
-        form.questions.forEach(q => addQuestion(q.question_text, q.type));
+        form.questions.forEach((q) => addQuestion({
+            id: q.id,
+            text: q.question_text,
+            type: q.type,
+            category: q.category || "",
+            required: q.is_required,
+            options: q.options || [],
+            scaleMin: q.scale_min || 1,
+            scaleMax: q.scale_max || 5,
+        }));
     } else {
         addQuestion();
     }
 
-    document.getElementById('tableSection').style.display = 'none';
-    document.getElementById('builderSection').style.display = 'block';
+    refreshQuestionNumbers();
+    updatePreview();
 }
 
 function closeBuilder() {
-    document.getElementById('builderSection').style.display = 'none';
-    document.getElementById('tableSection').style.display = 'block';
+    setBuilderVisibility(false);
 }
 
-function addQuestion(text = "", type = "Scale") {
-    const canvas = document.getElementById("formCanvas");
-    const num = canvas.querySelectorAll(".form-q-box").length + 1;
-    const div = document.createElement("div");
-    
-    div.className = "form-q-box existing-q"; 
-    div.style = "margin-bottom: 10px; display: flex; gap: 10px; align-items: center; background: #fdfdfd; padding: 10px; border: 1px solid #eee; border-radius: 4px;";
+function setBuilderVisibility(show) {
+    document.getElementById("tableSection").hidden = show;
+    document.getElementById("builderSection").hidden = !show;
+}
 
+function addQuestion(data = {}) {
+    const canvas = document.getElementById("formCanvas");
+    const div = document.createElement("div");
+    const type = data.type || "Scale";
+    const options = Array.isArray(data.options) ? data.options.join("\n") : "";
+
+    div.className = "question-card existing-q";
     div.innerHTML = `
-        <span style="font-weight:bold; color:var(--feu-green); min-width:25px;">${num}.</span>
-        <input type="text" placeholder="Enter Question" value="${text}" class="q-text" style="flex:3; padding: 8px;">
-        <select class="q-type" style="flex:1; padding: 8px;">
-            <option value="Scale" ${type === 'Scale' ? 'selected' : ''}>Scale (1-5)</option>
-            <option value="Text" ${type === 'Text' ? 'selected' : ''}>Text Response</option>
-        </select>
-        <button class="btn-danger" onclick="this.parentElement.remove()" style="padding: 8px 12px;">✕</button>
+        <div class="question-card-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="question-order">1</span>
+                <strong>Question</strong>
+            </div>
+            <div class="builder-actions">
+                <button type="button" class="builder-btn builder-btn-small builder-btn-secondary" onclick="moveQuestion(this, -1)">Move Up</button>
+                <button type="button" class="builder-btn builder-btn-small builder-btn-secondary" onclick="moveQuestion(this, 1)">Move Down</button>
+                <button type="button" class="builder-btn builder-btn-small builder-btn-danger" onclick="removeQuestion(this)">Remove</button>
+            </div>
+        </div>
+
+        <input type="hidden" class="q-id" value="${escapeHtml(data.id || "")}">
+
+        <div class="question-grid">
+            <label>
+                <span>Question Text</span>
+                <textarea class="q-text" rows="2" placeholder="Write the question students will answer">${escapeHtml(data.text || "")}</textarea>
+            </label>
+            <label>
+                <span>Category</span>
+                <input type="text" class="q-category" value="${escapeHtml(data.category || "")}" placeholder="Teaching">
+            </label>
+            <label>
+                <span>Question Type</span>
+                <select class="q-type" onchange="syncQuestionType(this)">
+                    <option value="Scale" ${type === "Scale" ? "selected" : ""}>Rating Scale</option>
+                    <option value="Multiple Choice" ${type === "Multiple Choice" ? "selected" : ""}>Multiple Choice</option>
+                    <option value="Text" ${type === "Text" ? "selected" : ""}>Text / Comment</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="question-scale">
+            <label>
+                <span>Scale Minimum</span>
+                <input type="number" class="q-scale-min" min="0" max="10" value="${escapeHtml(data.scaleMin || 1)}">
+            </label>
+            <label>
+                <span>Scale Maximum</span>
+                <input type="number" class="q-scale-max" min="1" max="10" value="${escapeHtml(data.scaleMax || 5)}">
+            </label>
+        </div>
+
+        <div class="question-options">
+            <label class="builder-full">
+                <span>Multiple Choice Options</span>
+                <textarea class="q-options" rows="4" placeholder="Put one option per line">${escapeHtml(options)}</textarea>
+            </label>
+        </div>
+
+        <label class="question-required">
+            <input type="checkbox" class="q-required" ${data.required === false ? "" : "checked"}>
+            Required question
+        </label>
     `;
+
     canvas.appendChild(div);
+    syncQuestionType(div.querySelector(".q-type"));
+    div.querySelectorAll("input, textarea, select").forEach((field) => field.addEventListener("input", updatePreview));
+    updatePreview();
+}
+
+function syncQuestionType(select) {
+    const card = select.closest(".question-card");
+    const scale = card.querySelector(".question-scale");
+    const options = card.querySelector(".question-options");
+    scale.classList.toggle("hidden", select.value !== "Scale");
+    options.classList.toggle("hidden", select.value !== "Multiple Choice");
+    updatePreview();
+}
+
+function moveQuestion(button, direction) {
+    const card = button.closest(".question-card");
+    const sibling = direction < 0 ? card.previousElementSibling : card.nextElementSibling;
+    if (!sibling) return;
+
+    if (direction < 0) {
+        card.parentElement.insertBefore(card, sibling);
+    } else {
+        card.parentElement.insertBefore(sibling, card);
+    }
+
+    refreshQuestionNumbers();
+    updatePreview();
+}
+
+function removeQuestion(button) {
+    if (!confirm("Remove this question from the form? Existing submitted answers will be protected by archive logic.")) return;
+    button.closest(".question-card").remove();
+    refreshQuestionNumbers();
+    updatePreview();
+}
+
+function refreshQuestionNumbers() {
+    document.querySelectorAll(".question-card").forEach((card, index) => {
+        card.querySelector(".question-order").textContent = index + 1;
+    });
+}
+
+function getQuestionsFromBuilder() {
+    return [...document.querySelectorAll(".existing-q")]
+        .map((box) => ({
+            id: box.querySelector(".q-id").value || null,
+            text: box.querySelector(".q-text").value.trim(),
+            type: box.querySelector(".q-type").value,
+            category: box.querySelector(".q-category").value.trim(),
+            is_required: box.querySelector(".q-required").checked,
+            scale_min: Number(box.querySelector(".q-scale-min").value || 1),
+            scale_max: Number(box.querySelector(".q-scale-max").value || 5),
+            options: box.querySelector(".q-options").value
+                .split("\n")
+                .map((option) => option.trim())
+                .filter(Boolean),
+        }))
+        .filter((q) => q.text);
 }
 
 async function saveForm() {
-    const questions = [...document.querySelectorAll(".existing-q")]
-        .map((box) => ({
-            text: box.querySelector(".q-text").value.trim(),
-            type: box.querySelector(".q-type").value,
-        }))
-        .filter((q) => q.text);
-
+    const questions = getQuestionsFromBuilder();
     const payload = {
-        form_id: document.getElementById('currentFormId').value,
-        school_year: document.getElementById('sy').value.trim(),
-        semester: document.getElementById('sem').value,
-        open_at: document.getElementById('openAt').value,
-        close_at: document.getElementById('closeAt').value,
-        questions: questions
+        form_id: document.getElementById("currentFormId").value,
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        school_year: document.getElementById("sy").value.trim(),
+        semester: document.getElementById("sem").value,
+        open_at: document.getElementById("openAt").value,
+        close_at: document.getElementById("closeAt").value,
+        is_active: document.getElementById("isActive").checked,
+        questions,
     };
 
-    if (!payload.school_year || !payload.open_at || !questions.length) {
-        return alert("Please fill in all fields and add at least one question.");
+    const browserError = validatePayload(payload);
+    if (browserError) {
+        alert(browserError);
+        return;
     }
 
     const result = await API.request("/admin/save-evaluation-form", "POST", payload);
     if (result) {
-        alert("Success!");
+        alert("Evaluation form saved.");
         location.reload();
     }
 }
 
-/**
- * Modified deleteForm: 
- * It now uses the ID from the hidden input field instead of a Blade variable.
- */
-async function deleteForm() {
-    const id = document.getElementById('currentFormId').value;
-    
-    if (!id) {
-        alert("No form selected to delete.");
+function validatePayload(payload) {
+    if (!payload.school_year) return "School year is required.";
+    if (!payload.open_at) return "Open date and time is required.";
+    if (!payload.close_at) return "Close date and time is required.";
+    if (new Date(payload.close_at) <= new Date(payload.open_at)) return "Close date must be after open date.";
+    if (!payload.questions.length) return "Add at least one question.";
+
+    for (const [index, question] of payload.questions.entries()) {
+        if (!question.text) return `Question ${index + 1} needs question text.`;
+        if (question.type === "Scale" && question.scale_min >= question.scale_max) {
+            return `Question ${index + 1} rating maximum must be greater than the minimum.`;
+        }
+        if (question.type === "Multiple Choice" && new Set(question.options).size < 2) {
+            return `Question ${index + 1} needs at least two unique options.`;
+        }
+    }
+
+    return null;
+}
+
+async function toggleFormStatus(id) {
+    const result = await API.request(`/admin/evaluation-forms/${id}/toggle-status`, "PATCH");
+    if (result?.success) {
+        alert(result.message);
+        location.reload();
+    }
+}
+
+async function deleteForm(id = null) {
+    const formId = id || document.getElementById("currentFormId").value;
+    if (!formId) {
+        alert("No form selected to archive.");
         return;
     }
 
-    if (!confirm("Are you sure? This will delete the period and all associated questions.")) return;
+    if (!confirm("Archive this form? Students will no longer see it, and existing answers will stay protected.")) return;
 
-    try {
-        const result = await API.request(`/admin/delete-evaluation-form/${id}`, "DELETE");
-        if (result.success) {
-            alert("Deleted successfully.");
-            location.reload();
-        } else {
-            alert(result.message || "Could not delete form.");
-        }
-    } catch (e) {
-        // Handle error response from Controller (e.g. data already exists)
-        const errorMsg = e.response?.data?.message || "Error deleting form.";
-        alert(errorMsg);
+    const result = await API.request(`/admin/delete-evaluation-form/${formId}`, "DELETE");
+    if (result?.success) {
+        alert(result.message || "Form archived.");
+        location.reload();
     }
+}
+
+function previewStudentView() {
+    updatePreview();
+    document.querySelector(".builder-preview")?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function updatePreview() {
+    const title = document.getElementById("title")?.value.trim() || "Faculty Evaluation Form";
+    const schoolYear = document.getElementById("sy")?.value.trim() || "School year";
+    const semester = document.getElementById("sem")?.value || "Semester";
+    const questions = getQuestionsFromBuilder();
+
+    const titleEl = document.getElementById("previewTitle");
+    const metaEl = document.getElementById("previewMeta");
+    const listEl = document.getElementById("previewQuestions");
+    if (!titleEl || !metaEl || !listEl) return;
+
+    titleEl.textContent = title;
+    metaEl.textContent = `${schoolYear} | ${semester}`;
+    listEl.innerHTML = "";
+
+    if (!questions.length) {
+        listEl.innerHTML = `<div class="preview-question"><strong>No questions yet</strong><span>Add a question to preview it here.</span></div>`;
+        return;
+    }
+
+    questions.forEach((question, index) => {
+        const item = document.createElement("div");
+        item.className = "preview-question";
+        const required = question.is_required ? " *" : "";
+        let answerPreview = "";
+
+        if (question.type === "Scale") {
+            for (let i = question.scale_min; i <= question.scale_max; i++) {
+                answerPreview += `<span class="preview-chip">${i}</span>`;
+            }
+        } else if (question.type === "Multiple Choice") {
+            answerPreview = question.options.map((option) => `<span class="preview-chip">${escapeHtml(option)}</span>`).join("");
+        } else {
+            answerPreview = `<span class="preview-chip">Text response</span>`;
+        }
+
+        item.innerHTML = `<strong>${index + 1}. ${escapeHtml(question.text)}${required}</strong>${answerPreview}`;
+        listEl.appendChild(item);
+    });
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
 }

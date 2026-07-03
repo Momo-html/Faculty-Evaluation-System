@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/admin/base.css') }}">
     <link rel="stylesheet" href="{{ asset('css/shared/polish.css') }}">
+    @stack('styles')
 </head>
 
 <body class="admin-shell">
@@ -71,10 +72,12 @@
             </a>
 
             <div class="sidebar-label">Evaluation Engine</div>
-            <a href="{{ route('admin.forms') }}"
-                class="menu-item {{ request()->routeIs('admin.forms') ? 'active' : '' }}">
-                Form Builder
-            </a>
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.forms') }}"
+                    class="menu-item {{ request()->routeIs('admin.forms') ? 'active' : '' }}">
+                    Form Builder
+                </a>
+            @endif
 
             <div class="sidebar-label">System Control</div>
             <a href="{{ route('admin.security') }}"
