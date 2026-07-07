@@ -65,10 +65,6 @@
                 class="menu-item {{ request()->routeIs('admin.students') ? 'active' : '' }}">
                 Student Directory
             </a>
-            <a href="{{ route('admin.mapping') }}"
-                class="menu-item {{ request()->routeIs('admin.mapping') ? 'active' : '' }}">
-                Faculty-Course Mapping
-            </a>
 
             <div class="sidebar-label">Evaluation Engine</div>
             <a href="{{ route('admin.forms') }}"

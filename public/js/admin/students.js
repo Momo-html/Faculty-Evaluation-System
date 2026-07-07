@@ -156,35 +156,6 @@ async function updateStudentSection(userId) {
     }
 }
 
-async function handleSubjectSelection(userId) {
-    const selectElement = document.getElementById(`sub-select-${userId}`);
-    const subjectId = selectElement.value;
-
-    if (!subjectId) return;
-
-    const payload = {
-        faculty_id: userId,
-        subject_id: subjectId,
-        section: "TBA",
-        semester: "1st Semester",
-    };
-
-    try {
-        const response = await API.request(
-            "/admin/mapping/store",
-            "POST",
-            payload,
-        );
-        if (response) {
-            alert("Course assigned successfully.");
-            location.reload();
-        }
-    } catch (error) {
-        console.error("Mapping Error:", error);
-        alert("Could not assign course.");
-    }
-}
-
 function sortCourseDropdowns() {
     const selects = document.querySelectorAll('select[id^="sub-select-"]');
     

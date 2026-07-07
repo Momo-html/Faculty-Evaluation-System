@@ -75,7 +75,7 @@
                 </thead>
                 <tbody>
                     @foreach($faculty as $fac)
-                        <tr>
+                        <tr class="faculty-main-row">
                             <td>{{ $fac->employee_id }}</td>
                             <td><b>{{ $fac->name }}</b></td>
                             <td>{{ $fac->email ?? 'No Email' }}</td>
@@ -88,7 +88,82 @@
                                 @endif
                             </td>
                             <td>
-                                <button class="btn-danger" onclick="removeFaculty({{ $fac->id }}, this)">Remove</button>
+                                <div class="action-stack">
+                                    <button class="btn-small btn-primary" onclick="toggleFacultyManage('faculty-manage-{{ $fac->id }}')">Manage</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr id="faculty-manage-{{ $fac->id }}" class="detail-row faculty-manage-row" style="display: none;">
+                            <td colspan="5">
+                                <div class="expansion-content">
+                                    <div class="card-header-row">
+                                        <h3>Manage Assignment</h3>
+                                        <button class="close-btn" onclick="toggleFacultyManage('faculty-manage-{{ $fac->id }}')">x</button>
+                                    </div>
+
+                                    <div class="form-row five-cols">
+                                        <div class="input-group">
+                                            <label for="fac-manage-dept-{{ $fac->id }}">Assign to Department</label>
+                                            <select id="fac-manage-dept-{{ $fac->id }}">
+                                                <option value="" disabled>Select Department</option>
+                                                @foreach($departments as $dept)
+                                                    <option value="{{ $dept->id }}" {{ $fac->department_id == $dept->id ? 'selected' : '' }}>
+                                                        {{ $dept->full_name }} ({{ $dept->code }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label for="fac-manage-section-{{ $fac->id }}">Select Section</label>
+                                            <select id="fac-manage-section-{{ $fac->id }}">
+                                                <option value="" selected disabled>Select Section</option>
+                                                @foreach($sections as $section)
+                                                    <option value="{{ $section->id }}" data-dept="{{ $section->department_id }}">
+                                                        {{ $section->section_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label for="fac-manage-semester-{{ $fac->id }}">Select Semester</label>
+                                            <select id="fac-manage-semester-{{ $fac->id }}">
+                                                <option value="" selected disabled>Select Semester</option>
+                                                @foreach($semesters as $semester)
+                                                    <option value="{{ $semester }}">{{ $semester }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label for="fac-manage-course-{{ $fac->id }}">Course</label>
+                                            <select id="fac-manage-course-{{ $fac->id }}">
+                                                <option value="" selected disabled>Select Course</option>
+                                                @foreach($allSubjects as $subject)
+                                                    <option value="{{ $subject->id }}">
+                                                        {{ $subject->subject_code }} - {{ $subject->subject_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="input-group">
+                                            <label for="fac-manage-instructor-{{ $fac->id }}">Assigned Instructor</label>
+                                            <select id="fac-manage-instructor-{{ $fac->id }}">
+                                                @foreach($allFaculty as $instructor)
+                                                    <option value="{{ $instructor->id }}" {{ $fac->id == $instructor->id ? 'selected' : '' }}>
+                                                        {{ $instructor->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="manage-actions">
+                                        <button class="btn-primary" onclick="saveFacultyAssignment({{ $fac->id }})">Save Assignment</button>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

@@ -56,10 +56,11 @@ class ModuleStructureTest extends TestCase
         $this->actingAs($admin)->get('/superadmin/dashboard')->assertForbidden();
     }
 
-    public function test_removed_admin_subject_and_section_module_routes_are_not_registered(): void
+    public function test_removed_admin_academic_module_routes_are_not_registered(): void
     {
         $admin = User::factory()->admin()->make();
 
+        $this->actingAs($admin)->get('/admin/mapping')->assertNotFound();
         $this->actingAs($admin)->get('/admin/sections')->assertNotFound();
         $this->actingAs($admin)->get('/admin/subjects')->assertNotFound();
     }
@@ -73,7 +74,6 @@ class ModuleStructureTest extends TestCase
             '/admin/dashboard',
             '/admin/faculty',
             '/admin/forms',
-            '/admin/mapping',
             '/admin/reports/faculty-pdf',
             '/admin/security',
             '/admin/sentiment',

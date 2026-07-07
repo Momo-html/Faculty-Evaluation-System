@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacultyController;
 use App\Http\Controllers\Admin\FormsController;
-use App\Http\Controllers\Admin\MappingController;
 use App\Http\Controllers\Admin\Reports\FacultyPdfController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SentimentController;
@@ -20,7 +19,6 @@ Route::prefix('admin')
         Route::get('/faculty', FacultyController::class)->name('faculty');
         Route::get('/faculty/{faculty}/export', FacultyPdfController::class)->name('faculty.export');
         Route::get('/forms', FormsController::class)->name('forms');
-        Route::get('/mapping', MappingController::class)->name('mapping');
         Route::get('/reports/faculty-pdf', FacultyPdfController::class)->name('reports.faculty-pdf');
         Route::get('/security', SecurityController::class)->name('security');
         Route::get('/sentiment', SentimentController::class)->name('sentiment');

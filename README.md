@@ -37,7 +37,7 @@ Open `http://127.0.0.1:8000`.
 
 ## Current Scope
 
-Standalone admin Subject and Section modules are removed from the active UI, routes, controllers, views, and page scripts. The related database tables remain because mapping, enrollment, and evaluation records still use course and class data.
+Standalone admin Subject, Section, and Faculty-Course Mapping modules are removed from the active UI, routes, controllers, views, and page scripts. The related database tables remain because enrollment and evaluation records still use course and class data.
 
 ## Verification
 
