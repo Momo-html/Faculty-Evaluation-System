@@ -20,9 +20,6 @@ return new class extends Migration
             $table->string('student_number')->nullable()->unique()->after('role');
             $table->foreignId('department_id')->nullable()->after('student_number')->constrained()->nullOnDelete();
             $table->string('status')->default('active')->after('department_id')->index();
-            $table->string('sso_provider')->nullable()->after('status');
-            $table->string('sso_id')->nullable()->after('sso_provider');
-            $table->unique(['sso_provider', 'sso_id']);
         });
 
         Schema::create('sections', function (Blueprint $table) {
@@ -273,15 +270,12 @@ return new class extends Migration
         Schema::dropIfExists('sections');
 
         Schema::table('users', function (Blueprint $table) {
-            $table->dropUnique(['sso_provider', 'sso_id']);
             $table->dropForeign(['department_id']);
             $table->dropColumn([
                 'role',
                 'student_number',
                 'department_id',
                 'status',
-                'sso_provider',
-                'sso_id',
             ]);
         });
 
