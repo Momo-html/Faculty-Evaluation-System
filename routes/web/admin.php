@@ -21,10 +21,13 @@ Route::prefix('admin')
         Route::get('/faculty/{faculty}/export', [FacultyPdfController::class, 'export'])->name('faculty.export');
         Route::get('/mapping', MappingController::class)->name('mapping');
         Route::get('/reports/faculty-pdf', FacultyPdfController::class)->name('reports.faculty-pdf');
+        Route::get('/reports/department/pdf', [FacultyPdfController::class, 'exportDepartmentPdf'])->name('reports.department.pdf');
+        Route::get('/reports/faculty/pdf', [FacultyPdfController::class, 'exportFacultyPdf'])->name('reports.faculty.pdf');
         Route::get('/security', SecurityController::class)->name('security');
         Route::get('/sentiment', SentimentController::class)->name('sentiment');
         Route::get('/settings', SettingsController::class)->name('settings');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/branding-image', [SettingsController::class, 'brandingImage'])->name('settings.branding-image');
         Route::post('/settings/profile', [SettingsController::class, 'profile'])->name('settings.profile');
         Route::get('/students', StudentsController::class)->name('students');
         Route::get('/users', UsersController::class)->name('users');

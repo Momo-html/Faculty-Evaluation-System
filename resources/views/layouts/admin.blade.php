@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>FEU Cavite - Master Unified Portal</title>
+    <title>{{ $portalSettings['school_name'] ?? 'FEU Cavite' }} - {{ $portalSettings['portal_name'] ?? 'Admin Portal' }}</title>
+    @if(($portalImage)('favicon_path'))
+        <link rel="icon" href="{{ ($portalImage)('favicon_path') }}">
+    @endif
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/admin/base.css') }}">
@@ -24,8 +27,7 @@
                 <span></span>
                 <span></span>
             </button>
-            <div class="logo-badge">FEU</div>
-            <span class="logo-text"> ADMIN PORTAL</span>
+            @include('layouts.branding-logo', ['imageKey' => 'header_logo_path', 'text' => $portalSettings['portal_name'] ?? 'Admin Portal', 'class' => 'navbar-brand-lockup'])
         </div>
         <div class="header-right">
             <div class="user-profile-trigger" onclick="toggleDropdown()">
@@ -47,6 +49,9 @@
     <div class="wrapper">
         <div class="sidebar-scrim" data-sidebar-close></div>
         <nav class="sidebar" id="admin-sidebar">
+            <div class="sidebar-brand">
+                @include('layouts.branding-logo', ['imageKey' => 'sidebar_logo_path', 'text' => $portalSettings['portal_name'] ?? 'Admin Portal', 'class' => 'sidebar-brand-lockup'])
+            </div>
             <div class="sidebar-label">Analytics & Reports</div>
             <a href="{{ route('admin.dashboard') }}"
                 class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">

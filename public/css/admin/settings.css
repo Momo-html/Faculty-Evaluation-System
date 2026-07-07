@@ -1,0 +1,243 @@
+.settings-page {
+    display: grid;
+    gap: 20px;
+}
+
+.settings-hero,
+.settings-card,
+.settings-savebar {
+    background: #fff;
+    border: 1px solid #e7ebdf;
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(24, 39, 12, 0.06);
+}
+
+.settings-hero {
+    border-top: 4px solid var(--feu-gold);
+    padding: 26px;
+}
+
+.settings-eyebrow {
+    margin: 0 0 6px;
+    color: var(--feu-gold);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.settings-hero h1,
+.settings-card h2 {
+    margin: 0;
+    color: var(--feu-green);
+}
+
+.settings-hero p,
+.settings-card-heading p,
+.settings-savebar span {
+    margin: 6px 0 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+.settings-stack {
+    display: grid;
+    gap: 20px;
+}
+
+.settings-card {
+    padding: 22px;
+}
+
+.settings-card-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #edf0e8;
+}
+
+.settings-grid,
+.settings-image-grid,
+.settings-toggle-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.settings-grid.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settings-full {
+    grid-column: 1 / -1;
+}
+
+.settings-grid label,
+.settings-image-field label {
+    display: grid;
+    gap: 6px;
+}
+
+.settings-grid span,
+.settings-image-field span {
+    color: var(--feu-green);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.settings-image-field small {
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.settings-upload-status {
+    min-height: 17px;
+}
+
+.settings-upload-status[data-state="saving"] {
+    color: #7a4d00;
+    font-weight: 700;
+}
+
+.settings-upload-status[data-state="success"] {
+    color: var(--feu-green);
+    font-weight: 700;
+}
+
+.settings-upload-status[data-state="error"] {
+    color: #a33a21;
+    font-weight: 700;
+}
+
+.settings-grid input,
+.settings-grid select,
+.settings-grid textarea,
+.settings-image-field input[type="file"] {
+    width: 100%;
+    border: 1px solid #d8e6cf;
+    border-radius: 6px;
+    background: #fff;
+    color: #1f2937;
+    font: inherit;
+    min-height: 42px;
+    padding: 10px 12px;
+}
+
+.settings-grid textarea {
+    resize: vertical;
+}
+
+.settings-image-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    margin-bottom: 16px;
+}
+
+.settings-image-field {
+    display: grid;
+    gap: 10px;
+    border: 1px solid #edf0e8;
+    border-radius: 8px;
+    background: #fcfdfb;
+    padding: 14px;
+}
+
+.settings-image-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 94px;
+    border: 1px dashed #d8e6cf;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.settings-image-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.settings-image-preview span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: var(--feu-gold);
+    color: var(--feu-green);
+    font-size: 16px;
+}
+
+.settings-check,
+.settings-toggle {
+    display: flex !important;
+    align-items: center;
+    gap: 9px !important;
+}
+
+.settings-check input,
+.settings-toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--feu-green);
+}
+
+.settings-check span,
+.settings-toggle span {
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: none;
+}
+
+.settings-toggle-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 16px;
+}
+
+.settings-toggle {
+    border: 1px solid #edf0e8;
+    border-radius: 8px;
+    background: #fcfdfb;
+    padding: 12px;
+}
+
+.settings-savebar {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    border-top: 3px solid var(--feu-gold);
+    padding: 16px 18px;
+}
+
+.settings-profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: end;
+}
+
+@media (max-width: 1100px) {
+    .settings-image-grid,
+    .settings-toggle-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .settings-grid.two,
+    .settings-image-grid,
+    .settings-toggle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-savebar,
+    .settings-card-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}

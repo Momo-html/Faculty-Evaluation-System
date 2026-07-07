@@ -1,0 +1,154 @@
+<?php
+
+namespace App\Support;
+
+use App\Models\Setting;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+
+class SettingsSupport
+{
+    /**
+     * @return array<string, string|null>
+     */
+    public static function defaults(): array
+    {
+        return [
+            'school_logo_path' => null,
+            'header_logo_path' => null,
+            'sidebar_logo_path' => null,
+            'login_logo_path' => null,
+            'favicon_path' => null,
+            'school_name' => 'FEU Cavite',
+            'portal_name' => 'FEU Evaluation',
+            'system_name' => 'FEU Cavite Faculty Evaluation Portal',
+            'school_address' => 'Silang, Cavite',
+            'school_email' => 'info@feucavite.edu.ph',
+            'school_contact_number' => '',
+            'footer_text' => 'FEU Cavite Faculty Evaluation Portal',
+            'evaluation_status' => 'closed',
+            'current_academic_year' => now()->year.'-'.now()->addYear()->year,
+            'current_semester' => '1st Semester',
+            'evaluation_start_date' => null,
+            'evaluation_deadline' => null,
+            'allow_late_submissions' => '0',
+            'allow_one_submission_only' => '1',
+            'allow_student_edit_submissions' => '0',
+            'default_evaluation_instructions' => 'Please answer each item honestly and professionally.',
+            'default_evaluation_form_id' => null,
+            'allow_pdf_export' => '1',
+            'report_visibility' => 'admins_only',
+            'include_school_logo_pdf' => '1',
+            'include_school_name_pdf' => '1',
+            'include_generated_date_pdf' => '1',
+            'include_prepared_by_pdf' => '1',
+            'include_signature_line_pdf' => '1',
+            'default_report_title' => 'Faculty Evaluation Report',
+            'student_evaluation_page_title' => 'Faculty Evaluation',
+            'student_evaluation_instructions' => 'Your feedback helps improve instruction and student experience.',
+            'show_deadline_to_students' => '1',
+            'show_progress_bar' => '1',
+            'show_required_question_indicator' => '1',
+            'show_confirmation_before_submit' => '1',
+            'thank_you_message' => 'Evaluation submitted. Thank you for your feedback.',
+            'session_timeout' => '120',
+            'password_min_length' => '8',
+            'strong_password_required' => '0',
+            'login_attempt_limit' => '5',
+            'account_lock_duration' => '15',
+            'maintenance_mode' => '0',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function booleanKeys(): array
+    {
+        return [
+            'allow_late_submissions',
+            'allow_one_submission_only',
+            'allow_student_edit_submissions',
+            'allow_pdf_export',
+            'include_school_logo_pdf',
+            'include_school_name_pdf',
+            'include_generated_date_pdf',
+            'include_prepared_by_pdf',
+            'include_signature_line_pdf',
+            'show_deadline_to_students',
+            'show_progress_bar',
+            'show_required_question_indicator',
+            'show_confirmation_before_submit',
+            'strong_password_required',
+            'maintenance_mode',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function imageKeys(): array
+    {
+        return [
+            'school_logo' => 'school_logo_path',
+            'header_logo' => 'header_logo_path',
+            'sidebar_logo' => 'sidebar_logo_path',
+            'login_logo' => 'login_logo_path',
+            'favicon' => 'favicon_path',
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function all(): array
+    {
+        $defaults = self::defaults();
+
+        if (! Schema::hasTable('settings')) {
+            return $defaults;
+        }
+
+        $stored = Setting::query()->pluck('value', 'key')->all();
+
+        return array_replace($defaults, array_intersect_key($stored, $defaults));
+    }
+
+    public static function value(string $key, mixed $default = null): mixed
+    {
+        return self::all()[$key] ?? $default;
+    }
+
+    public static function enabled(string $key, bool $default = false): bool
+    {
+        return (string) self::value($key, $default ? '1' : '0') === '1';
+    }
+
+    public static function imageUrl(string $pathKey, ?string $fallback = null): ?string
+    {
+        $path = self::value($pathKey);
+
+        if ((! is_string($path) || $path === '') && in_array($pathKey, ['header_logo_path', 'sidebar_logo_path', 'login_logo_path'], true)) {
+            $path = self::value('school_logo_path');
+        }
+
+        if (is_string($path) && $path !== '') {
+            return asset('storage/'.ltrim($path, '/'));
+        }
+
+        return $fallback;
+    }
+
+    public static function imagePathForPdf(string $pathKey): ?string
+    {
+        $path = self::value($pathKey);
+
+        if (! is_string($path) || $path === '') {
+            return null;
+        }
+
+        $fullPath = Storage::disk('public')->path($path);
+
+        return is_file($fullPath) ? $fullPath : null;
+    }
+}

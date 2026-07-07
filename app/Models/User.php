@@ -33,6 +33,7 @@ class User extends Authenticatable
         'student_number',
         'department_id',
         'status',
+        'profile_photo_path',
         'sso_provider',
         'sso_id',
     ];

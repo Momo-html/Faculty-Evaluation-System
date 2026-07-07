@@ -7,6 +7,7 @@ use App\Models\EvaluationAnswer;
 use App\Models\EvaluationForm;
 use App\Models\EvaluationResponse;
 use App\Models\SubjectMapping;
+use App\Support\SettingsSupport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -151,7 +152,7 @@ class EvalFormController extends Controller
 
         return redirect()
             ->route('user.home')
-            ->with('success', 'Evaluation submitted. Thank you for your feedback.');
+            ->with('success', SettingsSupport::value('thank_you_message', 'Evaluation submitted. Thank you for your feedback.'));
     }
 
     private function studentCanAnswerMapping(int $userId, int $mappingId): bool

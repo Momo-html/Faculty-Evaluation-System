@@ -9,7 +9,10 @@
         {{-- Header Card --}}
         <div class="form-card header-card">
             <div class="top-accent"></div>
-            <h1>Faculty Evaluation</h1>
+            <h1>{{ $portalSettings['student_evaluation_page_title'] ?? 'Faculty Evaluation' }}</h1>
+            @if(!empty($portalSettings['student_evaluation_instructions']))
+                <p style="margin: 0 0 12px; color: #5f6368;">{{ $portalSettings['student_evaluation_instructions'] }}</p>
+            @endif
 
             <!-- Focus on the specific subject being evaluated -->
             <div style="margin-top: 15px;">
@@ -26,7 +29,12 @@
             </div>
 
             <hr style="border: 0; border-top: 1px solid #dadce0; margin: 15px 0;">
-            <p class="required-notice"><span class="required">*</span> Indicates required question</p>
+            @if(($portalSettings['show_deadline_to_students'] ?? '1') === '1' && $form?->close_at)
+                <p style="margin: 10px 0 0; color: #5f6368;"><strong>Deadline:</strong> {{ $form->close_at->format('F d, Y h:i A') }}</p>
+            @endif
+            @if(($portalSettings['show_required_question_indicator'] ?? '1') === '1')
+                <p class="required-notice"><span class="required">*</span> Indicates required question</p>
+            @endif
         </div>
 
         @if($questions->isEmpty())
@@ -35,7 +43,7 @@
                 <p>Please return to your dashboard and try again later.</p>
             </div>
         @else
-        <form action="{{ route('eval.submit') }}" method="POST">
+        <form action="{{ route('eval.submit') }}" method="POST" data-confirm-submit="{{ ($portalSettings['show_confirmation_before_submit'] ?? '1') === '1' ? '1' : '0' }}">
             @csrf
             <input type="hidden" name="form_id" value="{{ $evaluation->form_id }}">
             <input type="hidden" name="mapping_id" value="{{ $evaluation->mapping_id }}">
@@ -43,7 +51,7 @@
             @foreach($questions as $q)
                 <div class="form-card question-section">
                     <div class="question-text">
-                        {{ $q->question_text }} @if($q->is_required)<span class="required">*</span>@endif
+                        {{ $q->question_text }} @if($q->is_required && (($portalSettings['show_required_question_indicator'] ?? '1') === '1'))<span class="required">*</span>@endif
                     </div>
 
                     @if(in_array(strtolower($q->question_type ?? $q->type ?? ''), ['scale', 'rating'], true))

@@ -14,7 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Simple submission confirmation
     const form = document.querySelector('form');
-    form.addEventListener('submit', function() {
+    form?.addEventListener('submit', function(event) {
+        if (this.dataset.confirmSubmit === '1' && !confirm('Submit this evaluation now?')) {
+            event.preventDefault();
+            return;
+        }
+
         const submitBtn = this.querySelector('.btn-submit');
         submitBtn.disabled = true;
         submitBtn.innerText = 'Submitting...';

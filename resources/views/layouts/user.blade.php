@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Student Portal | FEU Evaluation')</title>
+    <title>@yield('title', 'Student Portal | '.($portalSettings['portal_name'] ?? 'FEU Evaluation'))</title>
+    @if(($portalImage)('favicon_path'))
+        <link rel="icon" href="{{ ($portalImage)('favicon_path') }}">
+    @endif
     <link rel="stylesheet" href="{{ asset('css/user/base.css') }}">
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('css/shared/polish.css') }}">
@@ -13,8 +16,7 @@
 <body class="user-shell">
     <header class="navbar">
         <div class="logo-section" style="display: flex; align-items: center;">
-            <div class="logo-badge">FEU</div>
-            <span class="logo-text"> STUDENT PORTAL</span>
+            @include('layouts.branding-logo', ['imageKey' => 'header_logo_path', 'text' => $portalSettings['portal_name'] ?? 'Student Portal', 'class' => 'navbar-brand-lockup'])
         </div>
 
         <div class="header-right">
