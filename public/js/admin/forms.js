@@ -2,6 +2,8 @@
  * FEU Faculty Evaluation - Professional Form Builder
  */
 
+let builderDirty = false;
+
 function showCreateForm() {
     setBuilderVisibility(true);
     document.getElementById("builderTitle").innerText = "Create Evaluation Form";
@@ -18,6 +20,7 @@ function showCreateForm() {
     addQuestion();
     refreshQuestionNumbers();
     updatePreview();
+    builderDirty = false;
 }
 
 async function loadFormForEdit(id) {
@@ -57,6 +60,7 @@ async function loadFormForEdit(id) {
 
     refreshQuestionNumbers();
     updatePreview();
+    builderDirty = false;
 }
 
 function closeBuilder() {
@@ -77,13 +81,18 @@ function addQuestion(data = {}) {
     div.className = "question-card existing-q";
     div.innerHTML = `
         <div class="question-card-header">
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div class="question-title-group">
+                <span class="question-drag-handle" aria-hidden="true">::::</span>
                 <span class="question-order">1</span>
-                <strong>Question</strong>
+                <div>
+                    <strong>Question</strong>
+                    <small>Build what students will answer</small>
+                </div>
             </div>
             <div class="builder-actions">
-                <button type="button" class="builder-btn builder-btn-small builder-btn-secondary" onclick="moveQuestion(this, -1)">Move Up</button>
-                <button type="button" class="builder-btn builder-btn-small builder-btn-secondary" onclick="moveQuestion(this, 1)">Move Down</button>
+                <button type="button" class="builder-btn builder-btn-small builder-btn-secondary" onclick="moveQuestion(this, -1)">Up</button>
+                <button type="button" class="builder-btn builder-btn-small builder-btn-secondary" onclick="moveQuestion(this, 1)">Down</button>
+                <button type="button" class="builder-btn builder-btn-small builder-btn-secondary" onclick="duplicateQuestion(this)">Duplicate</button>
                 <button type="button" class="builder-btn builder-btn-small builder-btn-danger" onclick="removeQuestion(this)">Remove</button>
             </div>
         </div>
@@ -129,13 +138,24 @@ function addQuestion(data = {}) {
 
         <label class="question-required">
             <input type="checkbox" class="q-required" ${data.required === false ? "" : "checked"}>
-            Required question
+            <span class="question-required-switch" aria-hidden="true"></span>
+            <span>Required question</span>
         </label>
     `;
 
     canvas.appendChild(div);
     syncQuestionType(div.querySelector(".q-type"));
-    div.querySelectorAll("input, textarea, select").forEach((field) => field.addEventListener("input", updatePreview));
+    div.querySelectorAll("input, textarea, select").forEach((field) => {
+        field.addEventListener("input", () => {
+            markBuilderDirty();
+            updatePreview();
+        });
+        field.addEventListener("change", () => {
+            markBuilderDirty();
+            updatePreview();
+        });
+    });
+    markBuilderDirty();
     updatePreview();
 }
 
@@ -145,6 +165,7 @@ function syncQuestionType(select) {
     const options = card.querySelector(".question-options");
     scale.classList.toggle("hidden", select.value !== "Scale");
     options.classList.toggle("hidden", select.value !== "Multiple Choice");
+    markBuilderDirty();
     updatePreview();
 }
 
@@ -160,6 +181,7 @@ function moveQuestion(button, direction) {
     }
 
     refreshQuestionNumbers();
+    markBuilderDirty();
     updatePreview();
 }
 
@@ -167,6 +189,29 @@ function removeQuestion(button) {
     if (!confirm("Remove this question from the form? Existing submitted answers will be protected by archive logic.")) return;
     button.closest(".question-card").remove();
     refreshQuestionNumbers();
+    markBuilderDirty();
+    updatePreview();
+}
+
+function duplicateQuestion(button) {
+    const card = button.closest(".question-card");
+    if (!card) return;
+
+    addQuestion({
+        text: `${card.querySelector(".q-text").value.trim()} Copy`.trim(),
+        type: card.querySelector(".q-type").value,
+        category: card.querySelector(".q-category").value.trim(),
+        required: card.querySelector(".q-required").checked,
+        scaleMin: Number(card.querySelector(".q-scale-min").value || 1),
+        scaleMax: Number(card.querySelector(".q-scale-max").value || 5),
+        options: card.querySelector(".q-options").value
+            .split("\n")
+            .map((option) => option.trim())
+            .filter(Boolean),
+    });
+
+    refreshQuestionNumbers();
+    markBuilderDirty();
     updatePreview();
 }
 
@@ -216,6 +261,7 @@ async function saveForm() {
 
     const result = await API.request("/admin/save-evaluation-form", "POST", payload);
     if (result) {
+        builderDirty = false;
         alert("Evaluation form saved.");
         location.reload();
     }
@@ -266,8 +312,19 @@ async function deleteForm(id = null) {
 }
 
 function previewStudentView() {
-    updatePreview();
-    document.querySelector(".builder-preview")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const formId = document.getElementById("currentFormId")?.value;
+
+    if (!formId) {
+        alert("Please save the form first before previewing the student view.");
+        return;
+    }
+
+    if (builderDirty) {
+        alert("You have unsaved changes. Save first to preview the latest version.");
+        return;
+    }
+
+    window.location.href = `/admin/evaluation-forms/${formId}/preview-student`;
 }
 
 function updatePreview() {
@@ -286,7 +343,12 @@ function updatePreview() {
     listEl.innerHTML = "";
 
     if (!questions.length) {
-        listEl.innerHTML = `<div class="preview-question"><strong>No questions yet</strong><span>Add a question to preview it here.</span></div>`;
+        listEl.innerHTML = `
+            <div class="preview-empty-state">
+                <strong>No questions yet</strong>
+                <span>Add a question to preview it here.</span>
+            </div>
+        `;
         return;
     }
 
@@ -297,16 +359,36 @@ function updatePreview() {
         let answerPreview = "";
 
         if (question.type === "Scale") {
+            answerPreview = `<div class="preview-answer-scale">`;
             for (let i = question.scale_min; i <= question.scale_max; i++) {
-                answerPreview += `<span class="preview-chip">${i}</span>`;
+                answerPreview += `
+                    <label class="preview-radio-option">
+                        <span>${i}</span>
+                        <input type="radio" disabled>
+                    </label>
+                `;
             }
+            answerPreview += `</div>`;
         } else if (question.type === "Multiple Choice") {
-            answerPreview = question.options.map((option) => `<span class="preview-chip">${escapeHtml(option)}</span>`).join("");
+            answerPreview = `
+                <div class="preview-answer-options">
+                    ${question.options.map((option) => `
+                        <label class="preview-option-row">
+                            <input type="radio" disabled>
+                            <span>${escapeHtml(option)}</span>
+                        </label>
+                    `).join("")}
+                </div>
+            `;
         } else {
-            answerPreview = `<span class="preview-chip">Text response</span>`;
+            answerPreview = `<textarea class="preview-textarea" rows="2" placeholder="Student text response" disabled></textarea>`;
         }
 
-        item.innerHTML = `<strong>${index + 1}. ${escapeHtml(question.text)}${required}</strong>${answerPreview}`;
+        item.innerHTML = `
+            <span class="preview-question-number">Question ${index + 1}</span>
+            <strong>${escapeHtml(question.text)}${required}</strong>
+            ${answerPreview}
+        `;
         listEl.appendChild(item);
     });
 }
@@ -318,3 +400,15 @@ function escapeHtml(value) {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
 }
+
+function markBuilderDirty() {
+    builderDirty = true;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const editId = new URLSearchParams(window.location.search).get("edit");
+
+    if (editId && /^\d+$/.test(editId)) {
+        loadFormForEdit(editId);
+    }
+});

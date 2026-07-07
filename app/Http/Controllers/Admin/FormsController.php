@@ -68,6 +68,21 @@ class FormsController extends Controller
         ]);
     }
 
+    public function previewStudent(EvaluationForm $form): View
+    {
+        $form->load('questions');
+
+        $status = $form->is_active
+            ? (optional($form->open_at)->isFuture() ? 'Scheduled' : (optional($form->close_at)->isPast() ? 'Closed' : 'Active'))
+            : 'Draft';
+
+        return view('admin.forms-preview-student', [
+            'form' => $form,
+            'questions' => $form->questions,
+            'status' => $status,
+        ]);
+    }
+
     public function store(EvaluationFormRequest $request, AuditLogger $auditLogger): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();

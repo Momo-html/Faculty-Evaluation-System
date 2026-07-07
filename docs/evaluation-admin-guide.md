@@ -1,6 +1,6 @@
-# Byron Admin Modules Guide
+# Admin Evaluation Module Guide
 
-This guide explains where Byron's evaluation admin, reports, PDF export, audit logs, settings, and superadmin management code lives.
+This guide explains where the evaluation admin, reports, PDF export, audit logs, settings, and superadmin management code lives.
 
 ## Step 1: Inspect Existing Files
 
@@ -14,7 +14,7 @@ Checked existing Laravel structure before coding:
 
 ## Step 2: Files Added or Updated
 
-- Migration: `database/migrations/2026_07_03_000001_add_byron_admin_module_support.php`
+- Migration: `database/migrations/2026_07_03_000001_add_evaluation_admin_module_support.php`
 - Models: `EvaluationForm`, `FormQuestion`, `EvaluationResponse`, `EvaluationAnswer`, `ActivityLog`, `Department`, `Faculty`, `SubjectMapping`, `User`, `Setting`
 - Controllers: admin dashboard, forms, reports PDF, security, sentiment, settings, users, faculty, superadmin dashboard, student home/evaluation
 - Requests: `EvaluationFormRequest`, `SettingsRequest`, `StoreAdminRequest`
@@ -87,7 +87,7 @@ Superadmin routes use:
 ->middleware('role:superadmin')
 ```
 
-This means students cannot access Byron's admin pages, admins can manage evaluations/reports/settings, and only superadmins can manage admin accounts.
+This means students cannot access admin evaluation pages, admins can manage evaluations/reports/settings, and only superadmins can manage admin accounts.
 
 ## Step 8: Blade Views
 

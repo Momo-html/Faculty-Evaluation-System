@@ -12,7 +12,9 @@
                 <h1>Evaluation Form Builder</h1>
                 <p class="builder-subtitle">Create active evaluation forms, manage dynamic questions, and control what students can answer.</p>
             </div>
-            <button class="builder-btn builder-btn-primary" type="button" onclick="showCreateForm()">Create New Form</button>
+            <div class="builder-hero-actions">
+                <button class="builder-btn builder-btn-primary" type="button" onclick="showCreateForm()">Create New Form</button>
+            </div>
         </section>
 
         @if(session('success'))
@@ -25,20 +27,24 @@
 
         <section class="builder-stats">
             <article class="builder-stat">
-                <span>Total Forms</span>
+                <span class="builder-stat-label">Total Forms</span>
                 <strong>{{ $builderStats['total'] ?? 0 }}</strong>
+                <small>All saved evaluation forms</small>
             </article>
             <article class="builder-stat">
-                <span>Active Forms</span>
+                <span class="builder-stat-label">Active Forms</span>
                 <strong>{{ $builderStats['active'] ?? 0 }}</strong>
+                <small>Visible during schedule</small>
             </article>
             <article class="builder-stat">
-                <span>Draft / Closed</span>
+                <span class="builder-stat-label">Draft / Closed</span>
                 <strong>{{ $builderStats['closed'] ?? 0 }}</strong>
+                <small>Inactive or ended forms</small>
             </article>
             <article class="builder-stat">
-                <span>Total Questions</span>
+                <span class="builder-stat-label">Total Questions</span>
                 <strong>{{ $builderStats['questions'] ?? 0 }}</strong>
+                <small>Questions across forms</small>
             </article>
         </section>
 
@@ -91,6 +97,7 @@
                                 <td>
                                     <div class="builder-actions">
                                         <button class="builder-btn builder-btn-small" type="button" onclick="loadFormForEdit({{ $f->id }})">Edit Builder</button>
+                                        <a class="builder-btn builder-btn-small builder-btn-secondary" href="{{ route('admin.forms.preview-student', $f) }}">Preview</a>
                                         <button class="builder-btn builder-btn-small {{ $f->is_active ? 'builder-btn-warning' : 'builder-btn-secondary' }}" type="button" onclick="toggleFormStatus({{ $f->id }})">
                                             {{ $f->is_active ? 'Deactivate' : 'Activate' }}
                                         </button>
@@ -167,6 +174,7 @@
                             </label>
                             <label class="builder-toggle-row">
                                 <input type="checkbox" id="isActive" checked>
+                                <span class="builder-toggle-visual" aria-hidden="true"></span>
                                 <span>Active and visible during schedule</span>
                             </label>
                             <label class="builder-full">
@@ -182,7 +190,7 @@
                                 <h3>Question Builder</h3>
                                 <p>Add rating, multiple choice, and comment questions in the order students will see them.</p>
                             </div>
-                            <button type="button" class="builder-btn builder-btn-secondary" onclick="addQuestion()">Add Question</button>
+                            <button type="button" class="builder-btn builder-btn-primary" onclick="addQuestion()">Add Question</button>
                         </div>
                         <div id="formCanvas" class="question-list"></div>
                     </article>
@@ -190,7 +198,10 @@
 
                 <aside class="builder-preview">
                     <div class="preview-card">
-                        <span class="preview-label">Student Preview</span>
+                        <div class="preview-card-header">
+                            <span class="preview-label">Student Preview</span>
+                            <span class="preview-mini-badge">Preview Only</span>
+                        </div>
                         <h3 id="previewTitle">Faculty Evaluation Form</h3>
                         <p id="previewMeta">School year and semester will appear here.</p>
                         <div id="previewQuestions" class="preview-questions"></div>

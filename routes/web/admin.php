@@ -36,6 +36,7 @@ Route::prefix('admin')
     ->group(function (): void {
         Route::get('/forms', FormsController::class)->name('forms');
         Route::get('/get-form-data/{form}', [FormsController::class, 'show'])->name('forms.show');
+        Route::get('/evaluation-forms/{form}/preview-student', [FormsController::class, 'previewStudent'])->name('forms.preview-student');
         Route::post('/save-evaluation-form', [FormsController::class, 'store'])->name('forms.store');
         Route::delete('/delete-evaluation-form/{form}', [FormsController::class, 'destroy'])->name('forms.destroy');
         Route::patch('/evaluation-forms/{form}/toggle-status', [FormsController::class, 'toggleStatus'])->name('forms.toggle-status');
