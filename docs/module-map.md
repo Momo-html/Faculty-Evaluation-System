@@ -27,7 +27,6 @@ Each routeable blade has one invokable controller. Controllers only return their
 | `resources/views/admin/dashboard.blade.php` | `app/Http/Controllers/Admin/DashboardController.php` |
 | `resources/views/admin/faculty.blade.php` | `app/Http/Controllers/Admin/FacultyController.php` |
 | `resources/views/admin/forms.blade.php` | `app/Http/Controllers/Admin/FormsController.php` |
-| `resources/views/admin/mapping.blade.php` | `app/Http/Controllers/Admin/MappingController.php` |
 | `resources/views/admin/reports/faculty_pdf.blade.php` | `app/Http/Controllers/Admin/Reports/FacultyPdfController.php` |
 | `resources/views/admin/security.blade.php` | `app/Http/Controllers/Admin/SecurityController.php` |
 | `resources/views/admin/sentiment.blade.php` | `app/Http/Controllers/Admin/SentimentController.php` |
@@ -46,7 +45,7 @@ Each routeable blade has one invokable controller. Controllers only return their
 
 ## Frontend Scope
 
-The visible frontend keeps the FEU portal identity, but the standalone admin Section and Subject modules are intentionally removed from routes, controllers, views, and page scripts. The database tables remain because mapping, enrollment, and evaluation records still depend on section/course data behind the scenes.
+The visible frontend keeps the FEU portal identity, but the standalone admin Section, Subject, and Faculty-Course Mapping modules are intentionally removed from routes, controllers, views, and page scripts. The database tables remain because enrollment and evaluation records still depend on section/course relationships behind the scenes.
 
 ## Asset Ownership
 

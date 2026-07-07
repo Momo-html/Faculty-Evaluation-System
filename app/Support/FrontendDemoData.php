@@ -49,17 +49,14 @@ class FrontendDemoData
             ],
             'admin.faculty' => [
                 'departments' => $departments,
+                'sections' => $sections,
+                'allSubjects' => $subjects,
+                'allFaculty' => $faculty,
+                'semesters' => $forms->pluck('semester')->unique()->values(),
                 'faculty' => $faculty,
             ],
             'admin.forms' => [
                 'allForms' => $forms,
-            ],
-            'admin.mapping' => [
-                'departments' => $departments,
-                'sections' => $sections,
-                'allSubjects' => $subjects,
-                'allFaculty' => $faculty,
-                'mappings' => $mappings,
             ],
             'admin.security' => [
                 'logs' => self::logs(),

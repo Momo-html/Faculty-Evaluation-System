@@ -107,7 +107,7 @@
                                 </div>
                             </td>
                             <td>
-                                <button class="btn-small" onclick="toggleDetails('details-{{ $user->id }}')">Manage</button>
+                                <button class="btn-small btn-primary" onclick="toggleDetails('details-{{ $user->id }}')">Manage</button>
                             </td>
                         </tr>
 
