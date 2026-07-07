@@ -23,8 +23,8 @@
 
         @if($lowParticipation->isNotEmpty())
             <div
-                style="background: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; margin-bottom: 25px; border-radius: 4px;">
-                <strong style="color: #e65100;">Admin Attention Required</strong>
+                style="background: #eef5ea; border-left: 5px solid var(--feu-green); padding: 15px; margin-bottom: 25px; border-radius: 4px;">
+                <strong style="color: var(--feu-green);">Admin Attention Required</strong>
                 <p style="margin:0; font-size: 13px; color: #555;">
                     Low participation sections:
                     @foreach($lowParticipation as $low)

@@ -29,7 +29,7 @@
 
         <div style="text-align: center; margin-bottom: 20px;">
             <span
-                style="background: #fff5f5; color: #c53030; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; border: 1px solid #feb2b2;">
+                style="background: #eef5ea; color: var(--feu-green); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; border: 1px solid #cbdcc0;">
                 HIGH-LEVEL ACCESS REQUIRED
             </span>
         </div>

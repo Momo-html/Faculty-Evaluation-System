@@ -193,7 +193,8 @@ class SettingsController extends Controller
     {
         return match (true) {
             str_contains($key, 'logo') || str_contains($key, 'favicon') || str_starts_with($key, 'school_') || in_array($key, ['portal_name', 'system_name', 'footer_text'], true) => 'branding',
-            str_contains($key, 'pdf') || str_contains($key, 'report') || str_contains($key, 'signature') || str_contains($key, 'prepared') => 'reports',
+            str_contains($key, 'pdf') || str_contains($key, 'report') || str_contains($key, 'signature') || str_contains($key, 'prepared') || str_contains($key, 'remarks') => 'reports',
+            str_contains($key, 'performance_') || str_contains($key, 'rating_scale') || str_contains($key, 'reliable_responses') => 'performance',
             str_starts_with($key, 'student_') || str_starts_with($key, 'show_') || $key === 'thank_you_message' => 'student_display',
             str_contains($key, 'password') || str_contains($key, 'session') || str_contains($key, 'login') || str_contains($key, 'lock') || $key === 'maintenance_mode' => 'security',
             default => 'evaluation',

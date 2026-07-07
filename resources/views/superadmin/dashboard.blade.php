@@ -81,10 +81,6 @@
                 @endforelse
             </tbody>
         </table>
-
-        <div style="margin-top: 20px;">
-            {{ $admins->links() }}
-        </div>
     </div>
 
     <div class="modal-overlay" id="adminModal">

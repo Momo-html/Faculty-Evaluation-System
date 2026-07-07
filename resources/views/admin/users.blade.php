@@ -36,10 +36,6 @@
                     @endforelse
                 </tbody>
             </table>
-
-            <div style="margin-top: 20px;">
-                {{ $users->links() }}
-            </div>
         </div>
     </div>
 @endsection

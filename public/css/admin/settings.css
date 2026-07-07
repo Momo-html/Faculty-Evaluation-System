@@ -17,6 +17,11 @@
     padding: 26px;
 }
 
+.settings-card,
+.settings-savebar {
+    scroll-margin-top: 84px;
+}
+
 .settings-eyebrow {
     margin: 0 0 6px;
     color: var(--feu-gold);
@@ -97,7 +102,7 @@
 }
 
 .settings-upload-status[data-state="saving"] {
-    color: #7a4d00;
+    color: #475467;
     font-weight: 700;
 }
 
@@ -123,6 +128,26 @@
     font: inherit;
     min-height: 42px;
     padding: 10px 12px;
+}
+
+.settings-static-field {
+    background: #fcfdfb;
+    border: 1px solid #edf0e8;
+    border-radius: 8px;
+    display: grid;
+    gap: 6px;
+    padding: 12px;
+}
+
+.settings-static-field span {
+    color: var(--feu-green);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.settings-static-field strong {
+    color: #1f2937;
 }
 
 .settings-grid textarea {
@@ -206,6 +231,39 @@
     padding: 12px;
 }
 
+.settings-subsection {
+    border-top: 1px solid #edf0e8;
+    margin-top: 18px;
+    padding-top: 18px;
+}
+
+.settings-subsection h3 {
+    color: var(--feu-green);
+    font-size: 14px;
+    margin: 0;
+}
+
+.settings-threshold-grid {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.settings-threshold-row {
+    align-items: end;
+    background: #fcfdfb;
+    border: 1px solid #edf0e8;
+    border-radius: 8px;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(180px, 1fr) repeat(2, minmax(160px, 220px));
+    padding: 12px;
+}
+
+.settings-threshold-row strong {
+    color: var(--feu-green);
+}
+
 .settings-savebar {
     display: flex;
     justify-content: space-between;
@@ -231,7 +289,8 @@
 @media (max-width: 760px) {
     .settings-grid.two,
     .settings-image-grid,
-    .settings-toggle-grid {
+    .settings-toggle-grid,
+    .settings-threshold-row {
         grid-template-columns: 1fr;
     }
 

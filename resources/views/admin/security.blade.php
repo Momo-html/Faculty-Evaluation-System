@@ -97,7 +97,6 @@
                         <th>Action</th>
                         <th>Module</th>
                         <th>Description</th>
-                        <th>IP Address</th>
                         <th>Details</th>
                     </tr>
                 </thead>
@@ -129,7 +128,6 @@
                                 'action' => $action,
                                 'module' => $log->module ?? 'N/A',
                                 'description' => $log->description ?? 'No description provided.',
-                                'ipAddress' => $log->ip_address ?? 'N/A',
                                 'userAgent' => $log->user_agent ?: 'N/A',
                                 'changes' => $changes,
                             ];
@@ -141,7 +139,6 @@
                             <td><span class="audit-badge {{ $actionClass }}">{{ $action }}</span></td>
                             <td>{{ $log->module ?? 'N/A' }}</td>
                             <td class="audit-description">{{ $log->description ?? 'No description provided.' }}</td>
-                            <td>{{ $log->ip_address ?? 'N/A' }}</td>
                             <td>
                                 <span class="audit-change-summary">
                                     {{ $changeKeys->count() ? $changeKeys->count().' '.Illuminate\Support\Str::plural('field', $changeKeys->count()).' changed' : 'No value changes' }}
@@ -154,7 +151,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8">
+                            <td colspan="7">
                                 <div class="audit-empty-state">
                                     <strong>No audit logs found.</strong>
                                     <span>Try adjusting your filters or check again after system activity occurs.</span>
@@ -166,10 +163,6 @@
             </table>
         </div>
     </section>
-
-    <div class="audit-pagination">
-        {{ $logs->links() }}
-    </div>
 </div>
 
 <div class="audit-modal" id="auditDetailsModal" hidden>
@@ -188,7 +181,6 @@
             <div><span>Role</span><strong data-audit-field="role"></strong></div>
             <div><span>Action</span><strong data-audit-field="action"></strong></div>
             <div><span>Module</span><strong data-audit-field="module"></strong></div>
-            <div><span>IP Address</span><strong data-audit-field="ipAddress"></strong></div>
             <div><span>Date & Time</span><strong data-audit-field="dateTime"></strong></div>
         </div>
 

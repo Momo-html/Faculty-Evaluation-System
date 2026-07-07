@@ -227,9 +227,9 @@ class FrontendDemoData
     private static function logs(): LengthAwarePaginator
     {
         $items = collect([
-            self::row(['created_at' => Carbon::now()->subMinutes(15), 'user' => self::row(['name' => 'Aldwin Admin']), 'action' => 'LOGIN', 'resource' => 'Admin Portal', 'description' => 'Successful admin sign-in.', 'ip_address' => '127.0.0.1']),
-            self::row(['created_at' => Carbon::now()->subHours(2), 'user' => self::row(['name' => 'System']), 'action' => 'EXPORT', 'resource' => 'Faculty Report', 'description' => 'Generated faculty readiness PDF.', 'ip_address' => '127.0.0.1']),
-            self::row(['created_at' => Carbon::now()->subDay(), 'user' => self::row(['name' => 'Aldwin Admin']), 'action' => 'UPDATE', 'resource' => 'Evaluation Form', 'description' => 'Updated active evaluation period.', 'ip_address' => '127.0.0.1']),
+            self::row(['created_at' => Carbon::now()->subMinutes(15), 'user' => self::row(['name' => 'Aldwin Admin']), 'action' => 'LOGIN', 'resource' => 'Admin Portal', 'description' => 'Successful admin sign-in.', 'ip_address' => null]),
+            self::row(['created_at' => Carbon::now()->subHours(2), 'user' => self::row(['name' => 'System']), 'action' => 'EXPORT', 'resource' => 'Faculty Report', 'description' => 'Generated faculty readiness PDF.', 'ip_address' => null]),
+            self::row(['created_at' => Carbon::now()->subDay(), 'user' => self::row(['name' => 'Aldwin Admin']), 'action' => 'UPDATE', 'resource' => 'Evaluation Form', 'description' => 'Updated active evaluation period.', 'ip_address' => null]),
         ]);
 
         return new LengthAwarePaginator($items, $items->count(), 10, 1, [

@@ -159,8 +159,8 @@
 }
 
 .audit-badge.settings {
-    background: #fff6df;
-    color: #7a4d00;
+    background: #eef5ea;
+    color: var(--feu-green);
 }
 
 .audit-badge.danger {
@@ -263,8 +263,8 @@
 
 .audit-modal-close {
     align-items: center;
-    background: #fff7e6;
-    border: 1px solid #f0d08f;
+    background: #eef5ea;
+    border: 1px solid #cbdcc0;
     border-radius: 6px;
     color: var(--feu-green);
     cursor: pointer;

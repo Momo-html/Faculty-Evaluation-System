@@ -16,7 +16,7 @@ class SettingsRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'school_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'header_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'sidebar_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
@@ -52,6 +52,25 @@ class SettingsRequest extends FormRequest
             'include_prepared_by_pdf' => ['nullable', 'boolean'],
             'include_signature_line_pdf' => ['nullable', 'boolean'],
             'default_report_title' => ['required', 'string', 'max:255'],
+            'department_report_title' => ['required', 'string', 'max:255'],
+            'department_report_intro' => ['nullable', 'string', 'max:1000'],
+            'department_report_footer_text' => ['nullable', 'string', 'max:500'],
+            'individual_report_title' => ['required', 'string', 'max:255'],
+            'individual_report_intro' => ['nullable', 'string', 'max:1000'],
+            'individual_report_footer_text' => ['nullable', 'string', 'max:500'],
+            'admin_remarks_label' => ['required', 'string', 'max:100'],
+            'prepared_by_label' => ['required', 'string', 'max:100'],
+            'signature_label' => ['required', 'string', 'max:100'],
+            'rating_scale_max' => ['required', 'numeric', 'min:1', 'max:10'],
+            'performance_excellent_min' => ['required', 'numeric', 'min:0', 'max:10'],
+            'performance_excellent_max' => ['required', 'numeric', 'min:0', 'max:10'],
+            'performance_very_satisfactory_min' => ['required', 'numeric', 'min:0', 'max:10'],
+            'performance_very_satisfactory_max' => ['required', 'numeric', 'min:0', 'max:10'],
+            'performance_needs_improvement_min' => ['required', 'numeric', 'min:0', 'max:10'],
+            'performance_needs_improvement_max' => ['required', 'numeric', 'min:0', 'max:10'],
+            'performance_poor_min' => ['required', 'numeric', 'min:0', 'max:10'],
+            'performance_poor_max' => ['required', 'numeric', 'min:0', 'max:10'],
+            'minimum_reliable_responses' => ['required', 'integer', 'min:1', 'max:1000'],
             'student_evaluation_page_title' => ['required', 'string', 'max:255'],
             'student_evaluation_instructions' => ['nullable', 'string', 'max:3000'],
             'show_deadline_to_students' => ['nullable', 'boolean'],
@@ -66,6 +85,16 @@ class SettingsRequest extends FormRequest
             'account_lock_duration' => ['required', 'integer', 'min:5', 'max:1440'],
             'maintenance_mode' => ['nullable', 'boolean'],
         ];
+
+        foreach (\App\Support\SettingsSupport::departmentPdfBooleanKeys() as $key) {
+            $rules[$key] = ['nullable', 'boolean'];
+        }
+
+        foreach (\App\Support\SettingsSupport::individualPdfBooleanKeys() as $key) {
+            $rules[$key] = ['nullable', 'boolean'];
+        }
+
+        return $rules;
     }
 
     /**

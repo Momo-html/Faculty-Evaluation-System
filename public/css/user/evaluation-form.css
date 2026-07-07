@@ -1,6 +1,6 @@
 :root {
     --feu-green: #274c07;
-    --feu-gold: #f3ab21;
+    --feu-gold: #8aa57d;
     --bg-color: #f9f9f9; 
     --google-gray: #70757a;
     --border-color: #dadce0;
@@ -69,7 +69,7 @@ h1 {
 }
 
 .required {
-    color: #d93025;
+    color: var(--feu-green);
 }
 
 /* Scale Styling */

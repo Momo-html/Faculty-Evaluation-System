@@ -1,6 +1,6 @@
 :root {
     --feu-green: #274c07;
-    --feu-gold: #f3ab21;
+    --feu-gold: #8aa57d;
     --feu-dark: #1a3305;
     --bg-light: #f9f9f9;
     --text-main: #333;
@@ -72,8 +72,8 @@ body {
 }
 
 .logout-btn:hover {
-    background: var(--feu-gold);
-    color: var(--feu-green);
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--white);
     border-color: var(--feu-gold);
 }
 

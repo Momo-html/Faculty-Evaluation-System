@@ -119,10 +119,6 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="builder-pagination">
-                {{ $allForms->links() }}
-            </div>
         </section>
 
         <section id="builderSection" class="builder-workspace" hidden>

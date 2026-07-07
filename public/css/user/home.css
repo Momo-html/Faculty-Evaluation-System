@@ -20,7 +20,7 @@
 
 .subject-card:hover {
     transform: translateY(-5px);
-    border-left-color: var(--feu-gold);
+    border-left-color: var(--feu-green);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 

@@ -3,7 +3,7 @@
    ========================================================================== */
 :root {
     --feu-green: #274c07;
-    --feu-gold: #f3ab21;
+    --feu-gold: #8aa57d;
     --feu-dark: #1e3a05;
     --bg-light: #f0f2f5;
     --white: #ffffff;
@@ -157,6 +157,52 @@ body {
     padding-left: 20px;
 }
 
+.sidebar-dropdown {
+    margin-right: 12px;
+}
+
+.sidebar-dropdown summary {
+    list-style: none;
+    margin-right: 0;
+    position: relative;
+}
+
+.sidebar-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.sidebar-dropdown summary::after {
+    content: "v";
+    font-size: 12px;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-dropdown[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+    display: grid;
+    gap: 3px;
+    padding: 4px 0 8px 24px;
+}
+
+.sidebar-submenu a {
+    border-left: 2px solid #dfe7dc;
+    color: #667085;
+    display: block;
+    font-size: 13px;
+    padding: 8px 12px;
+    text-decoration: none;
+}
+
+.sidebar-submenu a:hover {
+    background: #f2f7ef;
+    border-left-color: var(--feu-green);
+    color: var(--feu-green);
+}
+
 .main-content {
     flex: 1;
     padding: 40px;
@@ -303,8 +349,8 @@ select:focus {
 }
 
 .close-btn:hover {
-    background: #c62828;
-    color: white;
+    background: #dfe7dc;
+    color: var(--feu-green);
 }
 
 /* ==========================================================================
@@ -413,7 +459,7 @@ tr:hover td {
 
 .dept-tag {
     font-weight: 800;
-    color: var(--feu-gold);
+    color: var(--feu-green);
     margin-right: 5px;
 }
 
@@ -542,8 +588,8 @@ tr:hover td {
 }
 
 .btn-add-row {
-    background: var(--feu-gold);
-    color: var(--feu-green);
+    background: var(--feu-green);
+    color: white;
     border: none;
     padding: 8px 15px;
     border-radius: 4px;
@@ -695,14 +741,14 @@ tr:hover td {
 /* Secondary - Grey/Neutral */
 .btn-secondary {
     background: #ffffff;
-    color: #666666;
+    color: #2e4a16;
     border-color: #e0e0e0;
 }
 
 .btn-secondary:hover {
     background: #f9f9f9;
     border-color: #999999;
-    color: #333333;
+    color: #2e4a16;
 }
 
 /* Small Variant for Tables */

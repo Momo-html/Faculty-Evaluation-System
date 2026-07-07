@@ -58,8 +58,8 @@
                 Dashboard
             </a>
             <a href="{{ route('admin.sentiment') }}"
-                class="menu-item {{ request()->routeIs('admin.sentiment') ? 'active' : '' }}">
-                Sentiment Feed
+                class="menu-item {{ request()->routeIs('admin.sentiment') || request()->routeIs('admin.performance-feed.*') ? 'active' : '' }}">
+                Performance Feed
             </a>
 
             <div class="sidebar-label">Academic Management</div>
@@ -89,10 +89,21 @@
                 class="menu-item {{ request()->routeIs('admin.security') ? 'active' : '' }}">
                 Security Logs
             </a>
-            <a href="{{ route('admin.settings') }}"
-                class="menu-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-                Settings
-            </a>
+            <details class="sidebar-dropdown {{ request()->routeIs('admin.settings') ? 'active' : '' }}" {{ request()->routeIs('admin.settings') ? 'open' : '' }}>
+                <summary class="menu-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+                    Settings
+                </summary>
+                <div class="sidebar-submenu">
+                    <a href="{{ route('admin.settings') }}#settings-branding">Branding</a>
+                    <a href="{{ route('admin.settings') }}#settings-evaluation">Evaluation Controls</a>
+                    <a href="{{ route('admin.settings') }}#settings-reports">Reports</a>
+                    <a href="{{ route('admin.settings') }}#settings-pdf">PDF Configuration</a>
+                    <a href="{{ route('admin.settings') }}#settings-performance">Performance Scale</a>
+                    <a href="{{ route('admin.settings') }}#settings-student">Student Display</a>
+                    <a href="{{ route('admin.settings') }}#settings-security">Security</a>
+                    <a href="{{ route('admin.settings') }}#settings-profile">Admin Profile</a>
+                </div>
+            </details>
         </nav>
 
         <main class="main-content">
