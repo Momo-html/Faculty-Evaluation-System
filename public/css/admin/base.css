@@ -737,3 +737,49 @@ tr:hover td {
     padding: 0 10px !important;
     font-size: 11px !important;
 }
+
+/* Faculty and student directory edit popups */
+.directory-modal {
+    width: min(760px, calc(100% - 32px));
+    max-height: 88vh;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    color: var(--text-dark);
+    box-shadow: 0 24px 70px rgba(16, 45, 22, 0.28);
+}
+
+.directory-modal::backdrop {
+    background: rgba(10, 32, 17, 0.58);
+    backdrop-filter: blur(2px);
+}
+
+.directory-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    color: white;
+    background: var(--feu-green);
+}
+
+.directory-modal-header h3 { margin: 4px 0 0; color: white; }
+.directory-modal-header small { color: var(--feu-gold); font-weight: 700; letter-spacing: 1px; }
+.directory-modal-close { border: 0; background: transparent; color: white; font-size: 28px; line-height: 1; cursor: pointer; }
+.directory-modal-body { padding: 24px; overflow-y: auto; }
+.directory-modal-section { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #e4eadf; }
+.directory-modal-section h4 { margin: 0 0 14px; color: var(--feu-green); }
+.directory-modal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.directory-modal-grid input,
+.directory-modal-grid select,
+.directory-modal-section > select { width: 100%; min-height: 42px; }
+.directory-modal-section > select { margin-bottom: 14px; }
+.directory-modal-history { padding: 14px; border-radius: 8px; background: #f7faf5; }
+.directory-modal-danger { display: flex; justify-content: flex-end; }
+.directory-modal-open { overflow: hidden; }
+
+@media (max-width: 650px) {
+    .directory-modal-grid { grid-template-columns: 1fr; }
+    .directory-modal-header, .directory-modal-body { padding: 18px; }
+}

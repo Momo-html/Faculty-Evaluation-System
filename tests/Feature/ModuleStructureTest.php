@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ModuleStructureTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_public_auth_pages_render_successfully(): void
     {
         $paths = [

@@ -5,19 +5,25 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     public const ROLE_STUDENT = 'student';
 
     public const ROLE_ADMIN = 'admin';
 
     public const ROLE_SUPERADMIN = 'superadmin';
+
+    public const ROLE_FACULTY = 'faculty';
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +37,7 @@ class User extends Authenticatable
         'role',
         'student_number',
         'department_id',
+        'section_id',
         'status',
         'sso_provider',
         'sso_id',
@@ -57,5 +64,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function section(): BelongsTo
+    {
+        return $this->belongsTo(Section::class);
+    }
+
+    public function subjectMappings(): BelongsToMany
+    {
+        return $this->belongsToMany(SubjectMapping::class, 'student_subjects')->withTimestamps();
+    }
+
+    public function sectionAllocations(): HasMany
+    {
+        return $this->hasMany(StudentSectionAllocation::class);
     }
 }

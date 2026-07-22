@@ -1,179 +1,78 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div id="faculty" class="page-content">
-        <div class="page-heading">
-            <h2>Faculty Directory</h2>
-            <div class="page-actions">
-                <button class="btn-primary" onclick="toggleQuickAdd()">+ Add Faculty</button>
-                <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSVUpload(this)">
-                <button class="btn-secondary" onclick="document.getElementById('csvFileInput').click()">Bulk CSV Import</button>
+<div class="page-content">
+    <div class="page-heading"><h2>Faculty Directory</h2></div>
+    @include('admin.directory-messages')
+
+    <div class="card">
+        <h3>Add Faculty</h3>
+        <form method="POST" action="{{ route('admin.faculty.store') }}">@csrf
+            <div class="form-row three-cols">
+                <div class="input-group"><label>Employee ID</label><input name="employee_id" value="{{ old('employee_id') }}" required></div>
+                <div class="input-group"><label>Full name</label><input name="faculty_name" value="{{ old('faculty_name') }}" required></div>
+                <div class="input-group"><label>Email</label><input type="email" name="email" value="{{ old('email') }}" required></div>
+                <div class="input-group"><label>Department</label><select name="department_id" required><option value="">Select</option>@foreach($departments as $department)<option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>{{ $department->code }} — {{ $department->department_name }}</option>@endforeach</select></div>
             </div>
-        </div>
-
-        <div id="quickAddContainer" class="card" style="display: none;">
-            <div class="card-header-row">
-                <h3>Manual Faculty Entry</h3>
-                <button onclick="toggleQuickAdd()" class="close-btn">x</button>
-            </div>
-
-            <div class="quick-add-form">
-                <div class="form-row two-cols">
-                    <div class="input-group">
-                        <label>Faculty ID</label>
-                        <input type="text" id="facId" placeholder="e.g. 2024-001">
-                    </div>
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" id="facEmail" placeholder="email@feucavite.edu.ph">
-                    </div>
-                </div>
-
-                <div class="form-row three-cols">
-                    <div class="input-group">
-                        <label for="facfirstName">First Name</label>
-                        <input type="text" id="facfirstName" name="first_name" placeholder="First Name" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="facmiddleName">Middle Name</label>
-                        <input type="text" id="facmiddleName" name="middle_name" placeholder="Middle Name">
-                    </div>
-                    <div class="input-group">
-                        <label for="faclastName">Last Name</label>
-                        <input type="text" id="faclastName" name="last_name" placeholder="Last Name" required>
-                    </div>
-                </div>
-
-                <div class="form-row action-row">
-                    <div class="input-group">
-                        <label>Department</label>
-                        <select id="facDept">
-                            <option value="" selected disabled>Select Department</option>
-                            @foreach($departments as $dept)
-                                <option value="{{ $dept->id }}">{{ $dept->full_name }} ({{ $dept->code }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="button-group">
-                        <button class="btn-primary" onclick="submitFaculty()" style="width:100%;">Save Faculty Member</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <input type="text" id="userSearch" placeholder="Search Faculty..." onkeyup="searchTable()">
-            <table id="userTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Department</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($faculty as $fac)
-                        <tr class="faculty-main-row">
-                            <td>{{ $fac->employee_id }}</td>
-                            <td><b>{{ $fac->name }}</b></td>
-                            <td>{{ $fac->email ?? 'No Email' }}</td>
-                            <td>
-                                @if($fac->department_name)
-                                    {{ $fac->department_name }}
-                                    <small class="text-muted">({{ $fac->department_code }})</small>
-                                @else
-                                    <span class="text-muted">No Department Assigned (ID: {{ $fac->department_id }})</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="action-stack">
-                                    <button class="btn-small btn-primary" onclick="toggleFacultyManage('faculty-manage-{{ $fac->id }}')">Manage</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr id="faculty-manage-{{ $fac->id }}" class="detail-row faculty-manage-row" style="display: none;">
-                            <td colspan="5">
-                                <div class="expansion-content">
-                                    <div class="card-header-row">
-                                        <h3>Manage Assignment</h3>
-                                        <button class="close-btn" onclick="toggleFacultyManage('faculty-manage-{{ $fac->id }}')">x</button>
-                                    </div>
-
-                                    <div class="form-row five-cols">
-                                        <div class="input-group">
-                                            <label for="fac-manage-dept-{{ $fac->id }}">Assign to Department</label>
-                                            <select id="fac-manage-dept-{{ $fac->id }}">
-                                                <option value="" disabled>Select Department</option>
-                                                @foreach($departments as $dept)
-                                                    <option value="{{ $dept->id }}" {{ $fac->department_id == $dept->id ? 'selected' : '' }}>
-                                                        {{ $dept->full_name }} ({{ $dept->code }})
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        <div class="input-group">
-                                            <label for="fac-manage-section-{{ $fac->id }}">Select Section</label>
-                                            <select id="fac-manage-section-{{ $fac->id }}">
-                                                <option value="" selected disabled>Select Section</option>
-                                                @foreach($sections as $section)
-                                                    <option value="{{ $section->id }}" data-dept="{{ $section->department_id }}">
-                                                        {{ $section->section_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        <div class="input-group">
-                                            <label for="fac-manage-semester-{{ $fac->id }}">Select Semester</label>
-                                            <select id="fac-manage-semester-{{ $fac->id }}">
-                                                <option value="" selected disabled>Select Semester</option>
-                                                @foreach($semesters as $semester)
-                                                    <option value="{{ $semester }}">{{ $semester }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        <div class="input-group">
-                                            <label for="fac-manage-course-{{ $fac->id }}">Course</label>
-                                            <select id="fac-manage-course-{{ $fac->id }}">
-                                                <option value="" selected disabled>Select Course</option>
-                                                @foreach($allSubjects as $subject)
-                                                    <option value="{{ $subject->id }}">
-                                                        {{ $subject->subject_code }} - {{ $subject->subject_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        <div class="input-group">
-                                            <label for="fac-manage-instructor-{{ $fac->id }}">Assigned Instructor</label>
-                                            <select id="fac-manage-instructor-{{ $fac->id }}">
-                                                @foreach($allFaculty as $instructor)
-                                                    <option value="{{ $instructor->id }}" {{ $fac->id == $instructor->id ? 'selected' : '' }}>
-                                                        {{ $instructor->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="manage-actions">
-                                        <button class="btn-primary" onclick="saveFacultyAssignment({{ $fac->id }})">Save Assignment</button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+            <input type="hidden" name="status" value="active"><button class="btn-primary">Create Faculty</button>
+        </form>
     </div>
+
+    <div class="card">
+        <h3>Bulk Import Faculty</h3>
+        <p class="help-text">Required CSV headers: employee_id, name, email, department_code, password</p>
+        <form method="POST" action="{{ route('admin.directory.import') }}" enctype="multipart/form-data">@csrf
+            <input type="hidden" name="type" value="faculty"><input type="file" name="csv_file" accept=".csv,text/csv" required> <button class="btn-secondary">Import CSV</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <form method="GET" class="table-toolbar">
+            <input name="search" value="{{ request('search') }}" placeholder="Search ID, name, or email">
+            <select name="department_id"><option value="">All departments</option>@foreach($departments as $department)<option value="{{ $department->id }}" @selected(request('department_id') == $department->id)>{{ $department->code }}</option>@endforeach</select>
+            <select name="status"><option value="">All statuses</option><option @selected(request('status')==='active')>active</option><option @selected(request('status')==='inactive')>inactive</option></select>
+            <button class="btn-primary">Filter</button><a class="btn-secondary" href="{{ route('admin.faculty') }}">Clear</a>
+        </form>
+        <table><thead><tr><th>ID / Faculty</th><th>Department</th><th>Status</th><th>Academic assignments</th><th>Manage</th></tr></thead><tbody>
+        @forelse($faculty as $member)
+            <tr><td><strong>{{ $member->employee_id }}</strong><br>{{ $member->faculty_name }}<br><small>{{ $member->email }}</small></td><td>{{ $member->department?->code ?? 'Unassigned' }}</td><td>{{ ucfirst($member->status) }}</td>
+                <td>@forelse($member->subjectMappings as $mapping)<div>{{ $mapping->subject->subject_code }} / {{ $mapping->section->section_name }} / {{ $mapping->semester }}
+                    <form method="POST" action="{{ route('admin.faculty.assignments.destroy', [$member, $mapping]) }}" style="display:inline">@csrf @method('DELETE')<button class="btn-small" onclick="return confirm('Remove this unused mapping?')">Remove</button></form></div>@empty None @endforelse</td>
+                <td>
+                    <button type="button" class="btn-small btn-primary" onclick="openDirectoryModal('faculty-modal-{{ $member->id }}')">Edit</button>
+                    <dialog class="directory-modal" id="faculty-modal-{{ $member->id }}" aria-labelledby="faculty-modal-title-{{ $member->id }}">
+                        <div class="directory-modal-header">
+                            <div><small>FACULTY PROFILE</small><h3 id="faculty-modal-title-{{ $member->id }}">Edit {{ $member->faculty_name }}</h3></div>
+                            <button type="button" class="directory-modal-close" onclick="closeDirectoryModal('faculty-modal-{{ $member->id }}')" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="directory-modal-body">
+                    <form method="POST" action="{{ route('admin.faculty.update', $member) }}" class="directory-modal-section">@csrf @method('PUT')
+                        <h4>Profile Details</h4>
+                        <div class="directory-modal-grid">
+                        <div class="input-group"><label>Employee ID</label><input name="employee_id" value="{{ $member->employee_id }}" required></div>
+                        <div class="input-group"><label>Full Name</label><input name="faculty_name" value="{{ $member->faculty_name }}" required></div>
+                        <div class="input-group"><label>Email Address</label><input type="email" name="email" value="{{ $member->email }}" required></div>
+                        <div class="input-group"><label>Department</label><select name="department_id" required>@foreach($departments as $department)<option value="{{ $department->id }}" @selected($member->department_id===$department->id)>{{ $department->code }}</option>@endforeach</select></div>
+                        <div class="input-group"><label>Account Status</label><select name="status"><option @selected($member->status==='active')>active</option><option @selected($member->status==='inactive')>inactive</option></select></div>
+                        </div><button class="btn-primary">Save Profile</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.faculty.assignments.store', $member) }}" class="directory-modal-section">@csrf
+                        <h4>Academic Assignment</h4><div class="directory-modal-grid">
+                        <div class="input-group"><label>Subject</label><select name="subject_id" required><option value="">Select subject</option>@foreach($subjects as $subject)<option value="{{ $subject->id }}">{{ $subject->subject_code }}</option>@endforeach</select></div>
+                        <div class="input-group"><label>Section</label><select name="section_id" required><option value="">Select section</option>@foreach($sections as $section)<option value="{{ $section->id }}">{{ $section->section_name }}</option>@endforeach</select></div>
+                        <div class="input-group"><label>School Year</label><input name="school_year" placeholder="2026-2027" required pattern="\d{4}-\d{4}"></div>
+                        <div class="input-group"><label>Semester</label><input name="semester" placeholder="1st Semester" required></div></div><button class="btn-primary">Assign Subject</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.faculty.destroy', $member) }}" class="directory-modal-danger">@csrf @method('DELETE')<button class="btn-secondary" onclick="return confirm('Archive this faculty profile?')">Archive Faculty</button></form>
+                        </div>
+                    </dialog>
+                </td></tr>
+        @empty<tr><td colspan="5">No faculty records found.</td></tr>@endforelse
+        </tbody></table>{{ $faculty->links() }}
+    </div>
+</div>
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/admin/shared.js') }}"></script>
-    <script src="{{ asset('js/admin/faculty.js') }}"></script>
+<script src="{{ asset('js/admin/directory-modal.js') }}"></script>
 @endpush
