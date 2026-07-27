@@ -94,7 +94,98 @@ class SettingsRequest extends FormRequest
             $rules[$key] = ['nullable', 'boolean'];
         }
 
-        return $rules;
+        $sectionKeys = [
+            'general' => [
+                'school_name',
+                'portal_name',
+                'system_name',
+                'school_address',
+                'school_email',
+                'school_contact_number',
+                'footer_text',
+            ],
+            'branding' => [
+                'school_logo',
+                'header_logo',
+                'sidebar_logo',
+                'login_logo',
+                'favicon',
+                'reset_school_logo',
+                'reset_header_logo',
+                'reset_sidebar_logo',
+                'reset_login_logo',
+                'reset_favicon',
+            ],
+            'evaluation' => [
+                'evaluation_status',
+                'current_academic_year',
+                'current_semester',
+                'evaluation_start_date',
+                'evaluation_deadline',
+                'allow_late_submissions',
+                'allow_one_submission_only',
+                'allow_student_edit_submissions',
+                'default_evaluation_instructions',
+                'default_evaluation_form_id',
+            ],
+            'reports' => [
+                'allow_pdf_export',
+                'report_visibility',
+                'include_school_logo_pdf',
+                'include_school_name_pdf',
+                'include_generated_date_pdf',
+                'include_prepared_by_pdf',
+                'include_signature_line_pdf',
+                'default_report_title',
+                'department_report_title',
+                'department_report_intro',
+                'department_report_footer_text',
+                'individual_report_title',
+                'individual_report_intro',
+                'individual_report_footer_text',
+                'admin_remarks_label',
+                'prepared_by_label',
+                'signature_label',
+                ...\App\Support\SettingsSupport::departmentPdfBooleanKeys(),
+                ...\App\Support\SettingsSupport::individualPdfBooleanKeys(),
+            ],
+            'performance' => [
+                'rating_scale_max',
+                'performance_excellent_min',
+                'performance_excellent_max',
+                'performance_very_satisfactory_min',
+                'performance_very_satisfactory_max',
+                'performance_needs_improvement_min',
+                'performance_needs_improvement_max',
+                'performance_poor_min',
+                'performance_poor_max',
+                'minimum_reliable_responses',
+            ],
+            'student' => [
+                'student_evaluation_page_title',
+                'student_evaluation_instructions',
+                'show_deadline_to_students',
+                'show_progress_bar',
+                'show_required_question_indicator',
+                'show_confirmation_before_submit',
+                'thank_you_message',
+            ],
+            'security' => [
+                'session_timeout',
+                'password_min_length',
+                'strong_password_required',
+                'login_attempt_limit',
+                'account_lock_duration',
+                'maintenance_mode',
+            ],
+        ];
+
+        $section = (string) $this->input('section', 'general');
+        $keys = $sectionKeys[$section] ?? array_keys($rules);
+
+        return [
+            'section' => ['nullable', 'in:general,branding,evaluation,reports,performance,student,security'],
+        ] + collect($rules)->only($keys)->all();
     }
 
     /**

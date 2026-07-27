@@ -31,6 +31,9 @@ Route::prefix('admin')
         Route::get('/performance-feed/faculty/export-pdf', [PerformanceFeedController::class, 'exportSelectedFacultyPdf'])->name('performance-feed.faculty.export-selected-pdf');
         Route::get('/performance-feed/faculty/{faculty}/export-pdf', [PerformanceFeedController::class, 'exportFacultyPdf'])->name('performance-feed.faculty.export-pdf');
         Route::get('/settings', SettingsController::class)->name('settings');
+        Route::get('/settings/{section}', SettingsController::class)
+            ->whereIn('section', ['general', 'branding', 'evaluation', 'reports', 'performance', 'student', 'security', 'profile'])
+            ->name('settings.section');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::post('/settings/branding-image', [SettingsController::class, 'brandingImage'])->name('settings.branding-image');
         Route::post('/settings/profile', [SettingsController::class, 'profile'])->name('settings.profile');

@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fillText('action', details.action);
         fillText('module', details.module);
         fillText('dateTime', details.dateTime);
+        fillText('ipAddress', details.ipAddress);
         fillText('description', details.description);
         fillText('userAgent', details.userAgent);
         renderChanges(details.changes);

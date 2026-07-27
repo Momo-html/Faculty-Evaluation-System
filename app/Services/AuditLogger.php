@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ActivityLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class AuditLogger
 {
@@ -21,6 +22,10 @@ class AuditLogger
         ?array $oldValues = null,
         ?array $newValues = null
     ): void {
+        if (! Schema::hasTable('activity_logs')) {
+            return;
+        }
+
         ActivityLog::query()->create([
             'user_id' => $request->user()?->id,
             'action' => strtoupper($action),

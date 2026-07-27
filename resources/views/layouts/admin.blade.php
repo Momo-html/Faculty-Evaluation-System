@@ -89,21 +89,23 @@
                 class="menu-item {{ request()->routeIs('admin.security') ? 'active' : '' }}">
                 Security Logs
             </a>
-            <details class="sidebar-dropdown {{ request()->routeIs('admin.settings') ? 'active' : '' }}" {{ request()->routeIs('admin.settings') ? 'open' : '' }}>
-                <summary class="menu-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-                    Settings
-                </summary>
-                <div class="sidebar-submenu">
-                    <a href="{{ route('admin.settings') }}#settings-branding">Branding</a>
-                    <a href="{{ route('admin.settings') }}#settings-evaluation">Evaluation Controls</a>
-                    <a href="{{ route('admin.settings') }}#settings-reports">Reports</a>
-                    <a href="{{ route('admin.settings') }}#settings-pdf">PDF Configuration</a>
-                    <a href="{{ route('admin.settings') }}#settings-performance">Performance Scale</a>
-                    <a href="{{ route('admin.settings') }}#settings-student">Student Display</a>
-                    <a href="{{ route('admin.settings') }}#settings-security">Security</a>
-                    <a href="{{ route('admin.settings') }}#settings-profile">Admin Profile</a>
-                </div>
-            </details>
+
+            <div class="sidebar-label">Settings</div>
+            @foreach([
+                'general' => 'General',
+                'branding' => 'Branding',
+                'evaluation' => 'Evaluation',
+                'reports' => 'PDF Reports',
+                'performance' => 'Performance Scale',
+                'student' => 'Student Display',
+                'security' => 'Security',
+                'profile' => 'Admin Profile',
+            ] as $section => $label)
+                <a href="{{ route('admin.settings.section', $section) }}"
+                    class="menu-item {{ request()->routeIs('admin.settings*') && request()->route('section', 'general') === $section ? 'active' : '' }}">
+                    {{ $label }}
+                </a>
+            @endforeach
         </nav>
 
         <main class="main-content">

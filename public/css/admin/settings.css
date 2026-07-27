@@ -49,6 +49,36 @@
     gap: 20px;
 }
 
+.settings-section-tabs {
+    background: #ffffff;
+    border: 1px solid #e4ebdf;
+    border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(31, 41, 51, 0.06);
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px;
+}
+
+.settings-section-tabs a {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #344054;
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-weight: 800;
+    min-height: 36px;
+    padding: 9px 12px;
+    text-decoration: none;
+}
+
+.settings-section-tabs a:hover,
+.settings-section-tabs a.active {
+    background: #f2f7ef;
+    border-color: #cbdcc0;
+    color: var(--feu-green);
+}
+
 .settings-card {
     padding: 22px;
 }
@@ -197,6 +227,86 @@
     font-size: 16px;
 }
 
+.settings-branding-picker {
+    display: grid;
+    gap: 7px;
+    margin-bottom: 16px;
+    max-width: 360px;
+}
+
+.settings-branding-picker span {
+    color: var(--feu-green);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.settings-branding-picker select {
+    border: 1px solid #d8e6cf;
+    border-radius: 6px;
+    color: #1f2937;
+    font: inherit;
+    min-height: 42px;
+    padding: 10px 12px;
+}
+
+.settings-branding-panel {
+    align-items: stretch;
+    background: #fcfdfb;
+    border: 1px solid #edf0e8;
+    border-radius: 10px;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 190px minmax(0, 1fr) 170px;
+    padding: 16px;
+}
+
+.settings-branding-panel[hidden] {
+    display: none;
+}
+
+.settings-branding-panel .settings-image-preview {
+    height: 150px;
+}
+
+.settings-branding-copy {
+    align-content: start;
+    display: grid;
+    gap: 8px;
+}
+
+.settings-branding-copy h3 {
+    color: var(--feu-green);
+    font-size: 18px;
+    margin: 0;
+}
+
+.settings-branding-copy p,
+.settings-branding-copy small {
+    color: #667085;
+    line-height: 1.45;
+    margin: 0;
+}
+
+.settings-branding-actions {
+    align-content: start;
+    display: grid;
+    gap: 10px;
+}
+
+.settings-file-button {
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+}
+
+.settings-file-button input {
+    height: 1px;
+    opacity: 0;
+    position: absolute;
+    width: 1px;
+}
+
 .settings-check,
 .settings-toggle {
     display: flex !important;
@@ -231,6 +341,19 @@
     padding: 12px;
 }
 
+.settings-toggle-list {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 16px;
+}
+
+.settings-toggle.compact {
+    background: #ffffff;
+    justify-content: flex-start;
+    min-height: 48px;
+}
+
 .settings-subsection {
     border-top: 1px solid #edf0e8;
     margin-top: 18px;
@@ -241,6 +364,149 @@
     color: var(--feu-green);
     font-size: 14px;
     margin: 0;
+}
+
+.settings-subsection p {
+    color: #667085;
+    font-size: 13px;
+    margin: 6px 0 0;
+}
+
+.settings-pdf-builder {
+    background: #fbfdf9;
+    border: 1px solid #e4ebdf;
+    border-radius: 8px;
+    margin-top: 22px;
+    padding: 16px;
+}
+
+.settings-pdf-builder-header {
+    align-items: center;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.settings-pdf-tabs {
+    background: #f2f7ef;
+    border: 1px solid #d8e6cf;
+    border-radius: 8px;
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+}
+
+.settings-pdf-tabs button {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: #344054;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    min-height: 34px;
+    padding: 0 14px;
+}
+
+.settings-pdf-tabs button.active {
+    background: #ffffff;
+    border-color: #b8c9b0;
+    color: var(--feu-green);
+    box-shadow: inset 0 -2px 0 var(--feu-green);
+}
+
+.settings-pdf-panel {
+    display: grid;
+    gap: 10px;
+}
+
+.settings-pdf-panel[hidden] {
+    display: none;
+}
+
+.settings-pdf-group {
+    background: #ffffff;
+    border: 1px solid #e4ebdf;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.settings-pdf-group summary {
+    align-items: center;
+    color: var(--feu-green);
+    cursor: pointer;
+    display: flex;
+    font-weight: 800;
+    justify-content: space-between;
+    list-style: none;
+    min-height: 44px;
+    padding: 0 14px;
+}
+
+.settings-pdf-group summary::-webkit-details-marker {
+    display: none;
+}
+
+.settings-pdf-group summary::after {
+    content: "v";
+    color: #667085;
+    font-size: 12px;
+    margin-left: 12px;
+    transition: transform 0.2s ease;
+}
+
+.settings-pdf-group[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.settings-pdf-group summary small {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: auto;
+}
+
+.settings-pdf-toggle-list {
+    border-top: 1px solid #edf0e8;
+    display: grid;
+}
+
+.settings-pdf-toggle {
+    border: 0;
+    border-bottom: 1px solid #edf0e8;
+    border-radius: 0;
+    display: flex !important;
+    gap: 12px !important;
+    min-height: 0;
+    padding: 11px 14px;
+}
+
+.settings-pdf-toggle:last-child {
+    border-bottom: 0;
+}
+
+.settings-pdf-toggle input {
+    flex: 0 0 auto;
+    margin-top: 3px;
+}
+
+.settings-pdf-toggle span {
+    display: grid;
+    gap: 3px;
+    line-height: 1.35;
+}
+
+.settings-pdf-toggle strong {
+    color: #253044;
+    font-size: 13px;
+}
+
+.settings-pdf-toggle small {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 500;
 }
 
 .settings-threshold-grid {
@@ -290,13 +556,25 @@
     .settings-grid.two,
     .settings-image-grid,
     .settings-toggle-grid,
+    .settings-toggle-list,
+    .settings-branding-panel,
     .settings-threshold-row {
         grid-template-columns: 1fr;
     }
 
     .settings-savebar,
-    .settings-card-heading {
+    .settings-card-heading,
+    .settings-pdf-builder-header {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .settings-pdf-tabs,
+    .settings-pdf-tabs button {
+        width: 100%;
+    }
+
+    .settings-pdf-tabs {
+        display: grid;
     }
 }

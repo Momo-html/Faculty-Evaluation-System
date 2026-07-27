@@ -1,17 +1,18 @@
 /* Frontend polish layer: keeps the FEU portal identity while tightening layout, spacing, and responsiveness. */
 :root {
-    --feu-green: #274c07;
-    --feu-green-strong: #183404;
+    --feu-green: #275a17;
+    --feu-green-strong: #163d0d;
     --feu-gold: #8aa57d;
     --surface: #ffffff;
-    --surface-muted: #f8faf7;
-    --page-bg: #f3f6f2;
+    --surface-muted: #f6faf4;
+    --page-bg: #f4f7f2;
     --line: #dfe7dc;
     --line-soft: #edf1eb;
-    --text-main: #1f2933;
+    --text-main: #253044;
     --text-muted: #667085;
-    --shadow-soft: 0 8px 24px rgba(31, 41, 51, 0.08);
-    --shadow-sm: 0 2px 8px rgba(31, 41, 51, 0.06);
+    --shadow-soft: 0 16px 36px rgba(31, 41, 51, 0.10);
+    --shadow-sm: 0 6px 18px rgba(31, 41, 51, 0.07);
+    --shadow-lift: 0 18px 42px rgba(24, 52, 4, 0.14);
     --radius: 8px;
 }
 
@@ -39,7 +40,7 @@ body.auth-shell {
 
 .navbar {
     min-height: 65px;
-    box-shadow: 0 8px 22px rgba(24, 52, 4, 0.18);
+    box-shadow: 0 12px 30px rgba(24, 52, 4, 0.20);
 }
 
 .logo-section {
@@ -233,16 +234,17 @@ body.auth-shell {
 .sidebar {
     background: #ffffff;
     border-right: 1px solid var(--line);
-    box-shadow: 8px 0 24px rgba(31, 41, 51, 0.05);
+    box-shadow: 10px 0 30px rgba(31, 41, 51, 0.06);
     padding: 18px 0 24px;
 }
 
 .sidebar-brand {
     margin: 0 14px 18px;
     padding: 14px 12px;
-    background: #f8faf7;
+    background: linear-gradient(180deg, #ffffff, #f6faf4);
     border: 1px solid var(--line-soft);
     border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(31, 41, 51, 0.05);
 }
 
 .sidebar-brand-lockup {
@@ -287,22 +289,25 @@ body.auth-shell {
     border-radius: 8px;
     color: #344054;
     font-size: 14px;
+    font-weight: 650;
     margin: 2px 14px;
     min-height: 40px;
     padding: 10px 12px;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .menu-item:hover {
-    background: #f8faf7;
+    background: #f6faf4;
     border-color: var(--line-soft);
     color: var(--feu-green);
+    transform: translateX(2px);
 }
 
 .menu-item.active {
-    background: #eef5ea;
+    background: linear-gradient(180deg, #f2f8ef, #eaf3e5);
     border-color: #cbdcc0;
     border-left: 4px solid var(--feu-green);
-    box-shadow: none;
+    box-shadow: 0 8px 18px rgba(39, 90, 23, 0.10);
     color: var(--feu-green);
     padding-left: 10px;
 }
@@ -386,13 +391,14 @@ body.auth-shell {
 
 .card {
     overflow-x: auto;
+    background: linear-gradient(180deg, #ffffff, #fbfdf9);
 }
 
 .card:hover,
 .stat-box:hover,
 .subject-card:hover,
 .form-card:hover {
-    box-shadow: var(--shadow-soft) !important;
+    box-shadow: var(--shadow-lift) !important;
 }
 
 .stats-grid {
@@ -463,36 +469,41 @@ textarea:focus,
     border-radius: 6px !important;
     min-height: 36px;
     text-decoration: none;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
 .btn-primary,
 .btn-start-eval,
 .btn-feu,
 .btn-submit {
-    background: var(--feu-green) !important;
+    background: linear-gradient(180deg, #2f681c, var(--feu-green)) !important;
     color: #ffffff !important;
     border: 1px solid var(--feu-green) !important;
-    box-shadow: 0 2px 6px rgba(39, 76, 7, 0.16);
+    box-shadow: 0 8px 18px rgba(39, 90, 23, 0.18);
 }
 
 .btn-primary:hover,
 .btn-start-eval:hover,
 .btn-feu:hover,
 .btn-submit:hover {
-    background: var(--feu-green-strong) !important;
+    background: linear-gradient(180deg, #275a17, var(--feu-green-strong)) !important;
     border-color: var(--feu-green-strong) !important;
     transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(24, 61, 13, 0.22);
 }
 
 .btn-secondary {
     background: #ffffff !important;
     color: var(--feu-green) !important;
     border-color: #b8c9b0 !important;
+    box-shadow: 0 5px 14px rgba(31, 41, 51, 0.06);
 }
 
 .btn-secondary:hover {
     background: #f2f7ef !important;
     border-color: var(--feu-green) !important;
+    box-shadow: 0 9px 20px rgba(31, 41, 51, 0.09);
+    transform: translateY(-1px);
 }
 
 .btn-danger {

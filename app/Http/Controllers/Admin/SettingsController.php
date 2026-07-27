@@ -14,16 +14,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(?string $section = null): View
     {
+        $activeSection = $this->normalizeSection($section);
+
         return view('admin.settings', [
             'settings' => collect(SettingsSupport::all()),
             'forms' => Schema::hasTable('evaluation_forms') ? EvaluationForm::query()->latest()->get() : collect(),
+            'activeSection' => $activeSection,
+            'settingSections' => $this->settingSections(),
         ]);
     }
 
@@ -31,7 +36,9 @@ class SettingsController extends Controller
     {
         $oldValues = SettingsSupport::all();
         $validated = $request->validated();
+        $section = $this->normalizeSection($validated['section'] ?? 'general');
         $settings = collect($validated)
+            ->only($this->keysForSection($section))
             ->except(array_merge(array_keys(SettingsSupport::imageKeys()), [
                 'reset_school_logo',
                 'reset_header_logo',
@@ -41,78 +48,82 @@ class SettingsController extends Controller
             ]))
             ->all();
 
-        foreach (SettingsSupport::booleanKeys() as $key) {
+        foreach ($this->booleanKeysForSection($section) as $key) {
             $settings[$key] = $request->boolean($key) ? '1' : '0';
         }
 
-        foreach (SettingsSupport::imageKeys() as $input => $settingKey) {
-            if ($request->boolean('reset_'.$input)) {
-                if (($oldValues[$settingKey] ?? null) && is_string($oldValues[$settingKey])) {
-                    $this->deleteImageIfUnused($oldValues[$settingKey], $settingKey, $oldValues);
-                }
+        if ($section === 'branding') {
+            foreach (SettingsSupport::imageKeys() as $input => $settingKey) {
+                if ($request->boolean('reset_'.$input)) {
+                    if (($oldValues[$settingKey] ?? null) && is_string($oldValues[$settingKey])) {
+                        $this->deleteImageIfUnused($oldValues[$settingKey], $settingKey, $oldValues);
+                    }
 
-                $settings[$settingKey] = null;
-                continue;
-            }
-
-            if ($request->hasFile($input)) {
-                if (($oldValues[$settingKey] ?? null) && is_string($oldValues[$settingKey])) {
-                    $this->deleteImageIfUnused($oldValues[$settingKey], $settingKey, $oldValues);
-                }
-
-                $settings[$settingKey] = $request->file($input)->store('branding', 'public');
-            }
-        }
-
-        $oldSchoolLogo = $oldValues['school_logo_path'] ?? null;
-
-        if (isset($settings['school_logo_path'])) {
-            foreach ([
-                'header_logo_path' => 'header_logo',
-                'sidebar_logo_path' => 'sidebar_logo',
-                'login_logo_path' => 'login_logo',
-            ] as $settingKey => $input) {
-                if (
-                    ! $request->hasFile($input)
-                    && ! $request->boolean('reset_'.$input)
-                ) {
-                    $settings[$settingKey] = $settings['school_logo_path'];
-                }
-            }
-        }
-
-        if ($request->boolean('reset_school_logo')) {
-            foreach ([
-                'header_logo_path' => 'header_logo',
-                'sidebar_logo_path' => 'sidebar_logo',
-                'login_logo_path' => 'login_logo',
-            ] as $settingKey => $input) {
-                if (
-                    ! $request->hasFile($input)
-                    && ! $request->boolean('reset_'.$input)
-                    && $oldSchoolLogo
-                    && ($oldValues[$settingKey] ?? null) === $oldSchoolLogo
-                ) {
                     $settings[$settingKey] = null;
+                    continue;
+                }
+
+                if ($request->hasFile($input)) {
+                    if (($oldValues[$settingKey] ?? null) && is_string($oldValues[$settingKey])) {
+                        $this->deleteImageIfUnused($oldValues[$settingKey], $settingKey, $oldValues);
+                    }
+
+                    $settings[$settingKey] = $request->file($input)->store('branding', 'public');
+                }
+            }
+
+            $oldSchoolLogo = $oldValues['school_logo_path'] ?? null;
+
+            if (isset($settings['school_logo_path'])) {
+                foreach ([
+                    'header_logo_path' => 'header_logo',
+                    'sidebar_logo_path' => 'sidebar_logo',
+                    'login_logo_path' => 'login_logo',
+                ] as $settingKey => $input) {
+                    if (
+                        ! $request->hasFile($input)
+                        && ! $request->boolean('reset_'.$input)
+                    ) {
+                        $settings[$settingKey] = $settings['school_logo_path'];
+                    }
+                }
+            }
+
+            if ($request->boolean('reset_school_logo')) {
+                foreach ([
+                    'header_logo_path' => 'header_logo',
+                    'sidebar_logo_path' => 'sidebar_logo',
+                    'login_logo_path' => 'login_logo',
+                ] as $settingKey => $input) {
+                    if (
+                        ! $request->hasFile($input)
+                        && ! $request->boolean('reset_'.$input)
+                        && $oldSchoolLogo
+                        && ($oldValues[$settingKey] ?? null) === $oldSchoolLogo
+                    ) {
+                        $settings[$settingKey] = null;
+                    }
                 }
             }
         }
 
-        foreach ($settings as $key => $value) {
-            Setting::query()->updateOrCreate(
-                ['key' => $key],
-                [
-                    'value' => $value,
-                    'type' => in_array($key, SettingsSupport::booleanKeys(), true) ? 'boolean' : 'string',
-                    'group' => $this->groupFor($key),
-                    'updated_by' => $request->user()?->id,
-                ],
-            );
-        }
+        DB::transaction(function () use ($settings, $request, $auditLogger, $oldValues): void {
+            foreach ($settings as $key => $value) {
+                Setting::query()->updateOrCreate(
+                    ['key' => $key],
+                    [
+                        'value' => $value,
+                        'type' => in_array($key, SettingsSupport::booleanKeys(), true) ? 'boolean' : 'string',
+                        'group' => $this->groupFor($key),
+                        'updated_by' => $request->user()?->id,
+                    ],
+                );
+            }
 
-        $auditLogger->record($request, 'UPDATE', 'Settings', null, 'Updated system settings.', $oldValues, SettingsSupport::all());
+            $auditLogger->record($request, 'settings.updated', 'Settings', null, 'Updated '.$this->settingSections()[$section]['label'].' settings.', $oldValues, SettingsSupport::all());
+        });
 
-        return back()->with('success', 'System settings updated.');
+        return redirect()->route('admin.settings.section', $section)->with('success', $this->settingSections()[$section]['label'].' settings updated.');
     }
 
     public function brandingImage(Request $request, AuditLogger $auditLogger): JsonResponse
@@ -141,10 +152,10 @@ class SettingsController extends Controller
 
         $auditLogger->record(
             $request,
-            'UPDATE',
-            'Settings',
+            'branding.logo_updated',
+            'Branding Settings',
             null,
-            'Updated branding image.',
+            'Updated '.$this->imageLabel($input).'.',
             collect($oldValues)->only(array_values(SettingsSupport::imageKeys()))->all(),
             collect(SettingsSupport::all())->only(array_values(SettingsSupport::imageKeys()))->all(),
         );
@@ -212,6 +223,89 @@ class SettingsController extends Controller
                 'updated_by' => $request->user()?->id,
             ],
         );
+    }
+
+    private function imageLabel(string $input): string
+    {
+        return match ($input) {
+            'school_logo' => 'the main school logo',
+            'header_logo' => 'the header logo',
+            'sidebar_logo' => 'the sidebar logo',
+            'login_logo' => 'the login page logo',
+            'favicon' => 'the favicon',
+            default => 'a branding image',
+        };
+    }
+
+    /**
+     * @return array<string, array{label: string, description: string}>
+     */
+    private function settingSections(): array
+    {
+        return [
+            'general' => [
+                'label' => 'General',
+                'description' => 'School identity, portal names, and contact details.',
+            ],
+            'branding' => [
+                'label' => 'Branding',
+                'description' => 'Logos, favicon, and visual identity assets.',
+            ],
+            'evaluation' => [
+                'label' => 'Evaluation',
+                'description' => 'Active evaluation period and submission rules.',
+            ],
+            'reports' => [
+                'label' => 'PDF Reports',
+                'description' => 'Report visibility, titles, and export content.',
+            ],
+            'performance' => [
+                'label' => 'Performance Scale',
+                'description' => 'Rating thresholds and reliability settings.',
+            ],
+            'student' => [
+                'label' => 'Student Display',
+                'description' => 'Student-facing labels and helper messages.',
+            ],
+            'security' => [
+                'label' => 'Security',
+                'description' => 'Password, session, login, and audit preferences.',
+            ],
+            'profile' => [
+                'label' => 'Admin Profile',
+                'description' => 'Your name, email, profile photo, and password.',
+            ],
+        ];
+    }
+
+    private function normalizeSection(?string $section): string
+    {
+        return array_key_exists((string) $section, $this->settingSections()) ? (string) $section : 'general';
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function keysForSection(string $section): array
+    {
+        return match ($section) {
+            'general' => ['school_name', 'portal_name', 'system_name', 'school_address', 'school_email', 'school_contact_number', 'footer_text'],
+            'branding' => [...array_keys(SettingsSupport::imageKeys()), 'reset_school_logo', 'reset_header_logo', 'reset_sidebar_logo', 'reset_login_logo', 'reset_favicon'],
+            'evaluation' => ['evaluation_status', 'current_academic_year', 'current_semester', 'evaluation_start_date', 'evaluation_deadline', 'allow_late_submissions', 'allow_one_submission_only', 'allow_student_edit_submissions', 'default_evaluation_instructions', 'default_evaluation_form_id'],
+            'reports' => ['allow_pdf_export', 'report_visibility', 'include_school_logo_pdf', 'include_school_name_pdf', 'include_generated_date_pdf', 'include_prepared_by_pdf', 'include_signature_line_pdf', 'default_report_title', 'department_report_title', 'department_report_intro', 'department_report_footer_text', 'individual_report_title', 'individual_report_intro', 'individual_report_footer_text', 'admin_remarks_label', 'prepared_by_label', 'signature_label', ...SettingsSupport::departmentPdfBooleanKeys(), ...SettingsSupport::individualPdfBooleanKeys()],
+            'performance' => ['rating_scale_max', 'performance_excellent_min', 'performance_excellent_max', 'performance_very_satisfactory_min', 'performance_very_satisfactory_max', 'performance_needs_improvement_min', 'performance_needs_improvement_max', 'performance_poor_min', 'performance_poor_max', 'minimum_reliable_responses'],
+            'student' => ['student_evaluation_page_title', 'student_evaluation_instructions', 'show_deadline_to_students', 'show_progress_bar', 'show_required_question_indicator', 'show_confirmation_before_submit', 'thank_you_message'],
+            'security' => ['session_timeout', 'password_min_length', 'strong_password_required', 'login_attempt_limit', 'account_lock_duration', 'maintenance_mode'],
+            default => [],
+        };
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function booleanKeysForSection(string $section): array
+    {
+        return array_values(array_intersect($this->keysForSection($section), SettingsSupport::booleanKeys()));
     }
 
     /**
