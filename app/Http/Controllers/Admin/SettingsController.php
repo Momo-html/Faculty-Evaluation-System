@@ -72,42 +72,9 @@ class SettingsController extends Controller
                 }
             }
 
-            $oldSchoolLogo = $oldValues['school_logo_path'] ?? null;
-
-            if (isset($settings['school_logo_path'])) {
-                foreach ([
-                    'header_logo_path' => 'header_logo',
-                    'sidebar_logo_path' => 'sidebar_logo',
-                    'login_logo_path' => 'login_logo',
-                ] as $settingKey => $input) {
-                    if (
-                        ! $request->hasFile($input)
-                        && ! $request->boolean('reset_'.$input)
-                    ) {
-                        $settings[$settingKey] = $settings['school_logo_path'];
-                    }
-                }
-            }
-
-            if ($request->boolean('reset_school_logo')) {
-                foreach ([
-                    'header_logo_path' => 'header_logo',
-                    'sidebar_logo_path' => 'sidebar_logo',
-                    'login_logo_path' => 'login_logo',
-                ] as $settingKey => $input) {
-                    if (
-                        ! $request->hasFile($input)
-                        && ! $request->boolean('reset_'.$input)
-                        && $oldSchoolLogo
-                        && ($oldValues[$settingKey] ?? null) === $oldSchoolLogo
-                    ) {
-                        $settings[$settingKey] = null;
-                    }
-                }
-            }
         }
 
-        DB::transaction(function () use ($settings, $request, $auditLogger, $oldValues): void {
+        DB::transaction(function () use ($settings, $request, $auditLogger, $oldValues, $section): void {
             foreach ($settings as $key => $value) {
                 Setting::query()->updateOrCreate(
                     ['key' => $key],
@@ -130,7 +97,7 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'image_type' => ['required', Rule::in(array_keys(SettingsSupport::imageKeys()))],
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
         ]);
 
         $oldValues = SettingsSupport::all();
@@ -143,12 +110,6 @@ class SettingsController extends Controller
 
         $path = $request->file('image')->store('branding', 'public');
         $this->saveSetting($settingKey, $path, $request);
-
-        if ($input === 'school_logo') {
-            foreach (['header_logo_path', 'sidebar_logo_path', 'login_logo_path'] as $linkedKey) {
-                $this->saveSetting($linkedKey, $path, $request);
-            }
-        }
 
         $auditLogger->record(
             $request,
@@ -172,7 +133,7 @@ class SettingsController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 

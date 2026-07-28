@@ -228,14 +228,14 @@
 }
 
 .builder-btn-danger {
-    background: #fff4f4;
-    border-color: #f2c7c7;
-    color: #a34141;
+    background: var(--feu-brown-soft);
+    border-color: #dfc7ab;
+    color: var(--feu-brown);
 }
 
 .builder-btn-danger:hover {
-    background: #a34141;
-    border-color: #a34141;
+    background: var(--feu-brown);
+    border-color: var(--feu-brown);
     color: #fff;
 }
 
@@ -273,8 +273,8 @@
 }
 
 .builder-badge.archived {
-    background: #fff4f4;
-    color: #a34141;
+    background: var(--feu-brown-soft);
+    color: var(--feu-brown);
 }
 
 .builder-empty {
@@ -690,8 +690,8 @@
 }
 
 .builder-alert-danger {
-    background: #fff4f4;
-    color: #a34141;
+    background: var(--feu-brown-soft);
+    color: var(--feu-brown);
 }
 
 .student-preview-page {

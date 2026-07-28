@@ -49,9 +49,6 @@
     <div class="wrapper">
         <div class="sidebar-scrim" data-sidebar-close></div>
         <nav class="sidebar" id="admin-sidebar">
-            <div class="sidebar-brand">
-                @include('layouts.branding-logo', ['imageKey' => 'sidebar_logo_path', 'text' => $portalSettings['portal_name'] ?? 'Admin Portal', 'class' => 'sidebar-brand-lockup'])
-            </div>
             <div class="sidebar-label">Analytics & Reports</div>
             <a href="{{ route('admin.dashboard') }}"
                 class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -90,22 +87,32 @@
                 Security Logs
             </a>
 
-            <div class="sidebar-label">Settings</div>
-            @foreach([
-                'general' => 'General',
-                'branding' => 'Branding',
-                'evaluation' => 'Evaluation',
-                'reports' => 'PDF Reports',
-                'performance' => 'Performance Scale',
-                'student' => 'Student Display',
-                'security' => 'Security',
-                'profile' => 'Admin Profile',
-            ] as $section => $label)
-                <a href="{{ route('admin.settings.section', $section) }}"
-                    class="menu-item {{ request()->routeIs('admin.settings*') && request()->route('section', 'general') === $section ? 'active' : '' }}">
-                    {{ $label }}
-                </a>
-            @endforeach
+            @php
+                $settingsOpen = request()->routeIs('admin.settings*');
+                $currentSettingsSection = request()->route('section') ?: 'general';
+            @endphp
+            <details class="sidebar-dropdown settings-dropdown" @if($settingsOpen) open @endif>
+                <summary class="menu-item {{ $settingsOpen ? 'active' : '' }}">
+                    Settings
+                </summary>
+                <div class="sidebar-submenu">
+                    @foreach([
+                        'general' => 'General',
+                        'branding' => 'Branding',
+                        'evaluation' => 'Evaluation',
+                        'reports' => 'PDF Reports',
+                        'performance' => 'Performance Scale',
+                        'student' => 'Student Display',
+                        'security' => 'Security',
+                        'profile' => 'Admin Profile',
+                    ] as $section => $label)
+                        <a href="{{ route('admin.settings.section', $section) }}"
+                            class="menu-item submenu-item {{ $settingsOpen && $currentSettingsSection === $section ? 'active' : '' }}">
+                            {{ $label }}
+                        </a>
+                    @endforeach
+                </div>
+            </details>
         </nav>
 
         <main class="main-content">

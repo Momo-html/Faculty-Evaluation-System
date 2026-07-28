@@ -319,10 +319,6 @@ class SettingsSupport
     {
         $path = self::value($pathKey);
 
-        if ((! is_string($path) || $path === '') && in_array($pathKey, ['header_logo_path', 'sidebar_logo_path', 'login_logo_path'], true)) {
-            $path = self::value('school_logo_path');
-        }
-
         if (is_string($path) && $path !== '') {
             return asset('storage/'.ltrim($path, '/'));
         }

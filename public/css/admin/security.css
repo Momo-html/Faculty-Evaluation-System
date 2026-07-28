@@ -15,6 +15,10 @@
 .audit-hero {
     align-items: center;
     border-top: 4px solid var(--feu-gold);
+    background:
+        radial-gradient(circle at 92% 10%, rgba(198, 163, 68, 0.22), transparent 250px),
+        linear-gradient(135deg, rgba(39, 90, 23, 0.14), transparent 42%),
+        linear-gradient(180deg, #ffffff, #fff8e4);
     display: flex;
     gap: 18px;
     justify-content: space-between;
@@ -58,8 +62,9 @@
 }
 
 .audit-current-view {
-    background: #f7faf5;
+    background: linear-gradient(180deg, #ffffff, #eef8ea);
     border: 1px solid #dce7d7;
+    box-shadow: 0 10px 24px rgba(39, 90, 23, 0.10);
     border-radius: 8px;
     min-width: 220px;
     padding: 14px 16px;
@@ -124,8 +129,14 @@
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+.audit-summary-card {
+    background:
+        linear-gradient(135deg, rgba(238, 248, 234, 0.76), transparent 42%),
+        linear-gradient(180deg, #ffffff, #fffdf4);
+}
+
 .audit-summary-card::before {
-    background: #c8d7c0;
+    background: linear-gradient(180deg, var(--feu-green), var(--feu-gold));
     content: "";
     height: 100%;
     left: 0;
@@ -143,13 +154,22 @@
 }
 
 .audit-summary-card.active {
-    background: #f7fbf4;
-    border-color: #aac69e;
-    box-shadow: 0 18px 42px rgba(24, 52, 4, 0.14);
+    background:
+        radial-gradient(circle at 88% 14%, rgba(198, 163, 68, 0.22), transparent 150px),
+        linear-gradient(135deg, var(--feu-green), var(--feu-green-strong));
+    border-color: rgba(198, 163, 68, 0.42);
+    box-shadow: 0 18px 42px rgba(24, 52, 4, 0.22);
+    color: #ffffff;
 }
 
 .audit-summary-card.active::before {
-    background: var(--feu-green);
+    background: var(--feu-gold);
+}
+
+.audit-summary-card.active span,
+.audit-summary-card.active strong,
+.audit-summary-card.active small {
+    color: #ffffff;
 }
 
 .audit-summary-card span {
@@ -174,6 +194,9 @@
 }
 
 .audit-card {
+    background:
+        linear-gradient(180deg, #ffffff 0%, #fbfff8 100%);
+    border-top: 3px solid rgba(198, 163, 68, 0.38);
     padding: 20px;
 }
 
@@ -198,8 +221,8 @@
 
 .audit-filter-header strong,
 .audit-table-header strong {
-    background: #f2f6ef;
-    border: 1px solid #dce8d6;
+    background: linear-gradient(90deg, #eef8ea, #fff8e4);
+    border: 1px solid rgba(198, 163, 68, 0.34);
     border-radius: 999px;
     color: var(--feu-green);
     font-size: 12px;
@@ -291,8 +314,8 @@
 }
 
 .audit-filter-actions .btn-secondary {
-    background: #ffffff;
-    border: 1px solid #bdcdb5;
+    background: linear-gradient(180deg, #ffffff, var(--feu-gold-soft));
+    border: 1px solid rgba(198, 163, 68, 0.48);
     color: var(--feu-green);
 }
 
@@ -360,7 +383,7 @@
 }
 
 .audit-table th {
-    background: #f8faf7;
+    background: linear-gradient(180deg, #f7faf4, #fff8e4);
     border-bottom: 1px solid #dfe7dc;
     color: #667085;
     font-size: 11px;
@@ -380,7 +403,7 @@
 }
 
 .audit-table tbody tr:hover {
-    background: #fbfdf9;
+    background: #fbfff8;
 }
 
 .audit-date strong,
@@ -437,22 +460,22 @@
 }
 
 .audit-status-badge.export {
-    background: #f4f7e6;
-    color: #596207;
+    background: var(--feu-gold-soft);
+    color: var(--feu-brown);
 }
 
 .audit-status-badge.warning {
-    background: #fff7e6;
-    color: #8a5a00;
+    background: var(--feu-gold-soft);
+    color: var(--feu-brown);
 }
 
 .audit-status-badge.danger {
-    background: #fff1ed;
-    color: #a33a21;
+    background: var(--feu-brown-soft);
+    color: var(--feu-brown);
 }
 
 .audit-area {
-    background: #f2f5f0;
+    background: linear-gradient(90deg, #eef8ea, #fff8e4);
     color: #344054;
     max-width: 220px;
     white-space: normal;
@@ -463,7 +486,7 @@
 }
 
 .audit-change-summary {
-    background: #f8faf7;
+    background: #fbfff8;
     color: #667085;
     margin-bottom: 8px;
 }
@@ -582,7 +605,7 @@
 
 .audit-detail-grid div,
 .audit-detail-section {
-    background: #f8faf7;
+    background: linear-gradient(180deg, #ffffff, #fbfff8);
     border: 1px solid #edf1eb;
     border-radius: 8px;
     padding: 12px;
@@ -613,6 +636,7 @@
 }
 
 .audit-change-row {
+    background: linear-gradient(180deg, #ffffff, #fffdf4);
     border: 1px solid #e3eadf;
     border-radius: 8px;
     display: grid;

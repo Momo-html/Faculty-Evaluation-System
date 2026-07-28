@@ -12,7 +12,7 @@
         h1 { color: #274c07; font-size: 21px; margin: 0; }
         h2 { color: #274c07; font-size: 14px; margin: 15px 0 7px; }
         .muted { color: #667085; }
-        .accent-line { height: 3px; background: #8aa57d; margin-top: 8px; }
+        .accent-line { height: 3px; background: #c6a344; margin-top: 8px; }
         .intro { margin: 10px 0 12px; }
         .summary { width: 100%; margin: 12px 0; border-collapse: collapse; }
         .summary td { border: 1px solid #dfe7dc; padding: 8px; width: 25%; }

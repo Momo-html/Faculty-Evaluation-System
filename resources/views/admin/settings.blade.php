@@ -8,31 +8,24 @@
     $activeSection = $activeSection ?? 'general';
     $settingSections = collect($settingSections ?? []);
     $currentSection = $settingSections[$activeSection] ?? ['label' => 'Settings', 'description' => 'Manage system configuration.'];
-    $schoolLogoPath = $settings['school_logo_path'] ?? null;
     $imageFields = [
         'school_logo' => [
             'label' => 'Main School Logo',
             'key' => 'school_logo_path',
             'dimensions' => 'Recommended: square image, 320 x 320 px or larger.',
-            'note' => 'Used as the default logo when other locations do not have a custom image.',
+            'note' => 'Used for school identity and PDF reports only. It does not replace the header, sidebar, or login logos.',
         ],
         'header_logo' => [
             'label' => 'Header Logo',
             'key' => 'header_logo_path',
             'dimensions' => 'Recommended: wide image, 360 x 96 px.',
-            'note' => 'Appears in the top navigation bar.',
-        ],
-        'sidebar_logo' => [
-            'label' => 'Sidebar Logo',
-            'key' => 'sidebar_logo_path',
-            'dimensions' => 'Recommended: compact image, 280 x 120 px.',
-            'note' => 'Appears in the admin sidebar.',
+            'note' => 'Appears only in the top navigation bar.',
         ],
         'login_logo' => [
             'label' => 'Login Page Logo',
             'key' => 'login_logo_path',
             'dimensions' => 'Recommended: clear logo, 360 x 160 px.',
-            'note' => 'Appears on login screens.',
+            'note' => 'Appears only on login screens.',
         ],
         'favicon' => [
             'label' => 'Favicon',
@@ -114,6 +107,14 @@
             <p class="settings-eyebrow">System Configuration</p>
             <h1>{{ $currentSection['label'] }}</h1>
             <p>{{ $currentSection['description'] }}</p>
+        </div>
+        <div class="settings-hero-actions">
+            <form action="{{ route('user.logout') }}" method="POST" class="settings-logout-form">
+                @csrf
+                <button type="submit" class="settings-logout-button">
+                    Logout
+                </button>
+            </form>
         </div>
     </section>
 
@@ -206,11 +207,6 @@
                     </label>
 
                     @foreach($imageFields as $input => $meta)
-                        @php
-                            $assetPath = $settings[$meta['key']] ?? null;
-                            $usesMainLogo = in_array($input, ['header_logo', 'sidebar_logo', 'login_logo'], true)
-                                && (! $assetPath || $assetPath === $schoolLogoPath);
-                        @endphp
                         <div class="settings-branding-panel" data-branding-field="{{ $input }}" @if(! $loop->first) hidden @endif>
                             <div class="settings-image-preview" data-branding-preview="{{ $input }}">
                                 @if(($portalImage)($meta['key']))
@@ -224,29 +220,21 @@
                                 <h3>{{ $meta['label'] }}</h3>
                                 <p>{{ $meta['note'] }}</p>
                                 <small>{{ $meta['dimensions'] }}</small>
-                                <small>Allowed file types: JPG, PNG, WEBP. Maximum size: 2 MB.</small>
+                                <small>Allowed file types: JPG, PNG, WEBP. Maximum size: 10 MB.</small>
 
-                                @if(in_array($input, ['header_logo', 'sidebar_logo', 'login_logo'], true))
-                                    <label class="settings-check">
-                                        <input type="checkbox" name="reset_{{ $input }}" value="1" data-branding-reset="{{ $input }}" @checked($usesMainLogo)>
-                                        <span>Use the main school logo for this location</span>
-                                    </label>
-                                @else
-                                    <label class="settings-check">
-                                        <input type="checkbox" name="reset_{{ $input }}" value="1" data-branding-reset="{{ $input }}">
-                                        <span>Reset to default</span>
-                                    </label>
-                                @endif
+                                <label class="settings-check">
+                                    <input type="checkbox" name="reset_{{ $input }}" value="1" data-branding-reset="{{ $input }}">
+                                    <span>Reset this image to default</span>
+                                </label>
 
                                 <small class="settings-upload-status" data-branding-status="{{ $input }}"></small>
                             </div>
 
                             <div class="settings-branding-actions">
                                 <label class="btn-secondary settings-file-button">
-                                    Choose Image
+                                    Choose Photo
                                     <input type="file" name="{{ $input }}" accept=".jpg,.jpeg,.png,.webp">
                                 </label>
-                                <button type="button" class="btn-secondary" data-branding-choose="{{ $input }}">Replace Image</button>
                                 <button type="submit" class="btn-primary">Save Branding</button>
                             </div>
                         </div>
@@ -674,10 +662,13 @@
                 badge?.remove();
             };
 
-            const renderSavedImages = (images = {}) => {
-                Object.entries(images).forEach(([fieldName, src]) => renderPreview(fieldName, src));
-                renderLogoLockup('.navbar-brand-lockup', images.header_logo || images.school_logo);
-                renderLogoLockup('.sidebar-brand-lockup', images.sidebar_logo || images.school_logo);
+            const renderSavedImage = (fieldName, images = {}) => {
+                renderPreview(fieldName, images[fieldName]);
+
+                if (fieldName === 'header_logo') {
+                    renderLogoLockup('.navbar-brand-lockup', images.header_logo);
+                }
+
             };
 
             const uploadBrandingImage = async (fieldName, file, input) => {
@@ -709,10 +700,10 @@
                         throw new Error(firstError || 'The image could not be saved.');
                     }
 
-                    renderSavedImages(data.images);
+                    renderSavedImage(fieldName, data.images);
                     input.value = '';
                     document.querySelector(`[data-branding-reset="${fieldName}"]`)?.removeAttribute('checked');
-                    setStatus(fieldName, 'Saved. This image will stay after refresh.', 'success');
+                    setStatus(fieldName, 'Saved. Only this logo slot was updated.', 'success');
                 } catch (error) {
                     setStatus(fieldName, error.message, 'error');
                 } finally {
@@ -731,8 +722,6 @@
                 const reset = field.querySelector('[data-branding-reset]');
                 const fieldName = field.dataset.brandingField;
 
-                field.querySelector(`[data-branding-choose="${fieldName}"]`)?.addEventListener('click', () => input?.click());
-
                 input?.addEventListener('change', () => {
                     const file = input.files?.[0];
 
@@ -748,25 +737,8 @@
                         reset.checked = false;
                     }
 
-                    if (fieldName === 'school_logo') {
-                        ['header_logo', 'sidebar_logo', 'login_logo'].forEach((linkedField) => {
-                            const linkedReset = document.querySelector(`[data-branding-reset="${linkedField}"]`);
-
-                            if (linkedReset?.checked) {
-                                renderPreview(linkedField, src);
-                            }
-                        });
-
-                        renderLogoLockup('.navbar-brand-lockup', src);
-                        renderLogoLockup('.sidebar-brand-lockup', src);
-                    }
-
                     if (fieldName === 'header_logo') {
                         renderLogoLockup('.navbar-brand-lockup', src);
-                    }
-
-                    if (fieldName === 'sidebar_logo') {
-                        renderLogoLockup('.sidebar-brand-lockup', src);
                     }
 
                     uploadBrandingImage(fieldName, file, input);
@@ -778,8 +750,7 @@
                     }
 
                     input.value = '';
-                    const schoolLogo = document.querySelector('[data-branding-preview="school_logo"] img')?.src;
-                    renderPreview(fieldName, ['header_logo', 'sidebar_logo', 'login_logo'].includes(fieldName) ? schoolLogo : null);
+                    renderPreview(fieldName, null);
                     setStatus(fieldName, 'Click Save Settings to apply this reset.', '');
                 });
             });
