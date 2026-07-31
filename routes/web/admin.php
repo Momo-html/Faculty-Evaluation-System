@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SentimentController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StudentsController;
+use App\Models\StudentEnrollment;
 use App\Http\Controllers\Admin\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,12 @@ Route::prefix('admin')
         Route::post('/faculty', [FacultyController::class, 'store'])->name('faculty.store');
         Route::put('/faculty/{faculty}', [FacultyController::class, 'update'])->name('faculty.update');
         Route::delete('/faculty/{faculty}', [FacultyController::class, 'destroy'])->name('faculty.destroy');
+        Route::put('/faculty/imported/{enrollment}', [FacultyController::class, 'updateImported'])
+            ->whereNumber('enrollment')
+            ->name('faculty.imported.update');
+        Route::delete('/faculty/imported/{enrollment}', [FacultyController::class, 'destroyImported'])
+            ->whereNumber('enrollment')
+            ->name('faculty.imported.destroy');
         Route::post('/faculty/{faculty}/assignments', [FacultyController::class, 'assignSubject'])->name('faculty.assignments.store');
         Route::delete('/faculty/{faculty}/assignments/{mapping}', [FacultyController::class, 'unassignSubject'])->name('faculty.assignments.destroy');
         Route::get('/faculty/{faculty}/export', FacultyPdfController::class)->name('faculty.export');
@@ -33,6 +40,15 @@ Route::prefix('admin')
         Route::get('/students', [StudentsController::class, 'index'])->name('students');
         Route::post('/students', [StudentsController::class, 'store'])->name('students.store');
         Route::put('/students/{student}', [StudentsController::class, 'update'])->name('students.update');
+        Route::put('/students/imported/{enrollment}', [StudentsController::class, 'updateImported'])
+            ->whereNumber('enrollment')
+            ->name('students.imported.update');
+        Route::post('/students/imported/{enrollment}/subject', [StudentsController::class, 'assignImportedSubject'])
+            ->whereNumber('enrollment')
+            ->name('students.imported.subject');
+        Route::delete('/students/imported/{enrollment}', [StudentsController::class, 'destroyImported'])
+            ->whereNumber('enrollment')
+            ->name('students.imported.destroy');
         Route::delete('/students/{student}', [StudentsController::class, 'destroy'])->name('students.destroy');
         Route::post('/students/{student}/assignments', [StudentsController::class, 'assignSubject'])->name('students.assignments.store');
         Route::delete('/students/{student}/assignments/{mapping}', [StudentsController::class, 'unassignSubject'])->name('students.assignments.destroy');

@@ -8,12 +8,14 @@ use App\Http\Requests\Admin\FacultyRequest;
 use App\Models\Department;
 use App\Models\Faculty;
 use App\Models\Section;
+use App\Models\StudentEnrollment;
 use App\Models\Subject;
 use App\Models\SubjectMapping;
 use App\Models\User;
 use App\Services\ActivityLogger;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -25,21 +27,76 @@ class FacultyController extends Controller
 
     public function index(Request $request): View
     {
-        $faculty = Faculty::query()->with(['department', 'subjectMappings.subject', 'subjectMappings.section'])
+        $facultyQuery = Faculty::query()->with(['department', 'subjectMappings.subject', 'subjectMappings.section'])
             ->when($request->filled('search'), fn ($q) => $q->where(fn ($inner) => $inner
                 ->where('faculty_name', 'like', '%'.$request->string('search').'%')
                 ->orWhere('employee_id', 'like', '%'.$request->string('search').'%')
                 ->orWhere('email', 'like', '%'.$request->string('search').'%')))
             ->when($request->filled('department_id'), fn ($q) => $q->where('department_id', $request->integer('department_id')))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
-            ->orderBy('faculty_name')->paginate(10)->withQueryString();
+            ->orderBy('faculty_name');
+
+        $importedQuery = StudentEnrollment::query()
+            ->whereIn('role', ['faculty', 'teacher', 'instructor', 'teacher_enrollment'])
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $search = '%'.$request->string('search')->trim().'%';
+
+                    $query->where(function ($inner) use ($search) {
+                        $inner->where('user_id', 'like', $search)
+                            ->orWhereHas('account', fn ($account) => $account
+                                ->where('full_name', 'like', $search)
+                                ->orWhere('short_name', 'like', $search)
+                                ->orWhere('login_id', 'like', $search)
+                                ->orWhere('email', 'like', $search));
+                    });
+                })
+                ->when($request->filled('department_id'), fn ($query) => $query
+                    ->where('department_id', $request->integer('department_id')))
+                ->when($request->filled('status'), fn ($query) => $query
+                    ->where('status', $request->string('status')))
+                ->with(['account', 'course', 'section.department', 'department'])
+            ->orderBy('user_id')
+            ->orderBy('course_id');
+
+        [$faculty, $importedFacultyEnrollments, $directoryPagination] =
+            $this->paginateDirectory($facultyQuery, $importedQuery, $request);
 
         return view('admin.faculty', [
             'faculty' => $faculty,
             'departments' => Department::query()->orderBy('department_name')->get(),
             'sections' => Section::query()->with('department')->orderBy('section_name')->get(),
             'subjects' => Subject::query()->orderBy('subject_code')->get(),
+            'importedFacultyEnrollments' => $importedFacultyEnrollments,
+            'directoryPagination' => $directoryPagination,
         ]);
+    }
+
+    private function paginateDirectory($primaryQuery, $importedQuery, Request $request): array
+    {
+        $perPage = 10;
+        $page = max(1, $request->integer('page', 1));
+        $offset = ($page - 1) * $perPage;
+        $primaryCount = (clone $primaryQuery)->count();
+        $importedCount = (clone $importedQuery)->count();
+
+        $primary = $offset < $primaryCount
+            ? $primaryQuery->offset($offset)->limit($perPage)->get()
+            : collect();
+        $remaining = $perPage - $primary->count();
+        $importedOffset = max(0, $offset - $primaryCount);
+        $imported = $remaining > 0
+            ? $importedQuery->offset($importedOffset)->limit($remaining)->get()
+            : collect();
+
+        $pagination = new LengthAwarePaginator(
+            [],
+            $primaryCount + $importedCount,
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()],
+        );
+
+        return [$primary, $imported, $pagination];
     }
 
     public function store(FacultyRequest $request): RedirectResponse
@@ -91,6 +148,43 @@ class FacultyController extends Controller
         $this->logger->log($request, 'FACULTY_ARCHIVED', "Archived faculty {$faculty->employee_id}.");
 
         return back()->with('success', 'Faculty profile archived safely.');
+    }
+
+    public function updateImported(Request $request, StudentEnrollment $enrollment): RedirectResponse
+    {
+        $data = $request->validate([
+            'full_name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email:rfc', 'max:255'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'section_id' => ['nullable', 'string', 'max:255'],
+            'course_id' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:50'],
+        ]);
+
+        DB::transaction(function () use ($enrollment, $data) {
+            $enrollment->account?->update([
+                'full_name' => $data['full_name'],
+                'email' => $data['email'],
+            ]);
+            $enrollment->update([
+                'department_id' => $data['department_id'] ?: null,
+                'section_id' => $data['section_id'] ?: null,
+                'course_id' => $data['course_id'],
+                'status' => $data['status'],
+            ]);
+        });
+        $this->logger->log($request, 'IMPORTED_FACULTY_UPDATED', "Updated imported faculty enrollment for {$enrollment->user_id}.");
+
+        return back()->with('success', 'Imported faculty record updated.');
+    }
+
+    public function destroyImported(Request $request, StudentEnrollment $enrollment): RedirectResponse
+    {
+        $userId = $enrollment->user_id;
+        $enrollment->delete();
+        $this->logger->log($request, 'IMPORTED_FACULTY_ARCHIVED', "Archived imported faculty enrollment for {$userId}.");
+
+        return back()->with('success', 'Imported faculty archived.');
     }
 
     public function assignSubject(FacultyAssignmentRequest $request, Faculty $faculty): RedirectResponse

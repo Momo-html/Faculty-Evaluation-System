@@ -14,6 +14,9 @@ class DatabaseSchemaTest extends TestCase
     {
         $tables = [
             'users',
+            'account_creations',
+            'course_creations',
+            'student_enrollments',
             'departments',
             'sections',
             'faculty',
@@ -70,6 +73,43 @@ class DatabaseSchemaTest extends TestCase
             'file_path',
             'report_status',
             'generated_at',
+        ]));
+    }
+
+    public function test_account_creation_csv_columns_exist(): void
+    {
+        $this->assertTrue(Schema::hasColumns('account_creations', [
+            'user_id',
+            'login_id',
+            'first_name',
+            'last_name',
+            'full_name',
+            'sortable_name',
+            'short_name',
+            'email',
+            'status',
+        ]));
+    }
+
+    public function test_course_creation_csv_columns_exist(): void
+    {
+        $this->assertTrue(Schema::hasColumns('course_creations', [
+            'course_id',
+            'short_name',
+            'long_name',
+            'status',
+            'term_id',
+        ]));
+    }
+
+    public function test_student_enrollment_csv_columns_exist(): void
+    {
+        $this->assertTrue(Schema::hasColumns('student_enrollments', [
+            'course_id',
+            'section_id',
+            'user_id',
+            'status',
+            'role',
         ]));
     }
 }
