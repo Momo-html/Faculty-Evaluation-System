@@ -739,6 +739,54 @@ tr:hover td {
 }
 
 /* Faculty and student directory edit popups */
+.directory-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.directory-form-actions input[type="file"] {
+    max-width: 100%;
+}
+
+.directory-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    border-left-width: 5px;
+}
+
+.directory-alert-error {
+    color: #8b1e1e;
+    background: #fff5f5;
+    border-color: #dc3545;
+}
+
+.directory-alert-warning {
+    color: #71510a;
+    background: #fff9e8;
+    border-color: #f3ab21;
+}
+
+.directory-alert-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.directory-alert ul {
+    margin: 8px 0 0;
+    padding-left: 20px;
+}
+
 .directory-modal {
     width: min(760px, calc(100% - 32px));
     max-height: 88vh;

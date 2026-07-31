@@ -13,14 +13,33 @@ class CsvImportController extends Controller
 {
     public function __invoke(CsvImportRequest $request, CsvUserImportService $importer, ActivityLogger $logger): RedirectResponse
     {
-        try {
-            $log = $importer->import($request->file('csv_file'), $request->string('type')->toString(), $request->user()?->id);
-        } catch (RuntimeException $exception) {
-            return back()->withErrors(['csv_file' => $exception->getMessage()]);
+        $files = $request->file('csv_files', []);
+        if ($request->hasFile('csv_file')) {
+            $files[] = $request->file('csv_file');
         }
-        $logger->log($request, 'CSV_IMPORT', "Imported {$log->import_type}: {$log->successful_rows} successful, {$log->failed_rows} failed.");
-        $message = "Import finished: {$log->successful_rows} created, {$log->failed_rows} rejected.";
 
-        return back()->with($log->failed_rows ? 'warning' : 'success', $message)->with('import_errors', $log->errors->take(20));
+        $successful = 0;
+        $failed = 0;
+        $importErrors = collect();
+        $fileErrors = [];
+        foreach ($files as $file) {
+            try {
+                $log = $importer->import($file, $request->string('type')->toString(), $request->user()?->id);
+                $successful += $log->successful_rows;
+                $failed += $log->failed_rows;
+                $importErrors = $importErrors->concat($log->errors);
+            } catch (RuntimeException $exception) {
+                $fileErrors[] = "{$file->getClientOriginalName()}: {$exception->getMessage()}";
+            }
+        }
+
+        if ($fileErrors !== []) {
+            return back()->withErrors(['csv_files' => implode(' ', $fileErrors)]);
+        }
+
+        $logger->log($request, 'CSV_IMPORT', "Imported ".count($files)." CSV file(s): {$successful} successful, {$failed} failed.");
+        $message = "Import finished: ".count($files)." file(s), {$successful} saved, {$failed} rejected.";
+
+        return back()->with($failed ? 'warning' : 'success', $message)->with('import_errors', $importErrors->take(20));
     }
 }
